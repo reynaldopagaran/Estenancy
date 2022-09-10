@@ -1,0 +1,122 @@
+package com.example.estenancy;
+
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import android.text.TextUtils;
+import android.util.Patterns;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+
+public class Register extends Fragment {
+
+    EditText et_fname, et_lname, et_email, et_password, et_confirm_password;
+    Button btn_create_account;
+    private FirebaseAuth auth;
+
+    public Register() {
+        // Required empty public constructor
+    }
+
+    // TODO: Rename and change types and number of parameters
+    public static Register newInstance(String param1, String param2) {
+        Register fragment = new Register();
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_register, container, false);
+
+        et_fname = v.findViewById(R.id.et_fname);
+        et_lname = v.findViewById(R.id.et_lname);
+        et_email = v.findViewById(R.id.et_email);
+        et_password = v.findViewById(R.id.et_password);
+        et_confirm_password = v.findViewById(R.id.et_confirmPassword);
+        btn_create_account = v.findViewById(R.id.btn_create_account);
+
+        auth = FirebaseAuth.getInstance();
+        //method calls
+        setBtn_create_account();
+
+        return v;
+    }
+
+    public void setBtn_create_account(){
+        btn_create_account.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(TextUtils.isEmpty(et_fname.getText().toString())){
+                    et_fname.setError("Please enter your First Name.");
+                    et_fname.requestFocus();
+                }else if(TextUtils.isEmpty(et_lname.getText().toString())){
+                    et_lname.setError("Please enter your Last Name.");
+                    et_lname.requestFocus();
+                }else if(TextUtils.isEmpty(et_email.getText().toString())){
+                    et_email.setError("Please enter your Email.");
+                    et_email.requestFocus();
+                }else if(TextUtils.isEmpty(et_password.getText().toString())){
+                    et_password.setError("Password Required.");
+                    et_password.requestFocus();
+                }else if(TextUtils.isEmpty(et_confirm_password.getText().toString())){
+                    et_confirm_password.setError("Password Required.");
+                    et_confirm_password.requestFocus();
+                }else if(et_password.getText().toString().length() < 6){
+                    et_password.setError("Password is too short!.");
+                    et_password.requestFocus();
+                }else if(et_confirm_password.getText().toString().length() < 6){
+                    et_confirm_password.setError("Password is too short!.");
+                    et_confirm_password.requestFocus();
+                }else if(!Patterns.EMAIL_ADDRESS.matcher(et_email.getText().toString()).matches()){
+                    et_email.setError("Please enter a correct email.");
+                    et_email.requestFocus();
+                }else if(!et_password.getText().toString().equals(et_confirm_password.getText().toString())){
+                    et_confirm_password.setError("Password doesn't match!");
+                    et_confirm_password.requestFocus();
+                }else{
+
+                    auth.createUserWithEmailAndPassword(et_email.getText().toString(), et_password.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()){
+
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                user.sendEmailVerification();
+                                Toast.makeText(getActivity(), "We sent a verification email, please check to verify your account.",
+                                        Toast.LENGTH_LONG).show();
+
+                                Login login = new Login();
+                                FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                                transaction.replace(R.id.mainLayout, login).addToBackStack("tag");
+                                transaction.commit();
+
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+}
