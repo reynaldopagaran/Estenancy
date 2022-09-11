@@ -1,5 +1,7 @@
 package com.example.estenancy;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -28,8 +30,12 @@ public class Login extends Fragment {
     EditText et_email, et_pass;
     Button btn_create_account;
     private FirebaseAuth auth;
-
     TextView tv_register,tv_forgotpass;
+
+    SharedPreferences sharedPreferences;
+    private static final String SHARED_PREF_NAME = "mypref";
+    private static final String KEY_EMAIL = "username";
+
 
     public Login() {
         // Required empty public constructor
@@ -51,6 +57,10 @@ public class Login extends Fragment {
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_login, container, false);
+
+        sharedPreferences = getActivity().getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        String spName = sharedPreferences.getString(KEY_EMAIL, null);
+
 
         tv_register = v.findViewById(R.id.tv_register);
         et_email = v.findViewById(R.id.et_email_login);
@@ -93,6 +103,18 @@ public class Login extends Fragment {
                                 if(user.isEmailVerified()){
                                     Toast.makeText(getActivity(), "Login Successful.",
                                             Toast.LENGTH_LONG).show();
+
+                                    //shared preferences
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString(KEY_EMAIL, et_email.getText().toString());
+                                    editor.apply();
+
+                                    //go to home
+                                    Home home = new Home();
+                                    FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                                    transaction.replace(R.id.mainLayout, home);
+                                    transaction.commit();
+
                                 }else{
                                     Toast.makeText(getActivity(), "Check your email to verify your account.",
                                             Toast.LENGTH_LONG).show();

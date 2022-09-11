@@ -7,26 +7,40 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class Register extends Fragment {
 
-    EditText et_fname, et_lname, et_email, et_password, et_confirm_password;
+    EditText et_fname, et_lname, et_email, et_password, et_confirm_password,et_age;
     Button btn_create_account;
     private FirebaseAuth auth;
+    private FirebaseFirestore db;
+    Spinner gender;
 
     public Register() {
         // Required empty public constructor
@@ -55,12 +69,30 @@ public class Register extends Fragment {
         et_password = v.findViewById(R.id.et_password);
         et_confirm_password = v.findViewById(R.id.et_confirmPassword);
         btn_create_account = v.findViewById(R.id.btn_create_account);
+        et_age = v.findViewById(R.id.et_age);
+        gender = v.findViewById(R.id.sp_gender);
+
 
         auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
         //method calls
         setBtn_create_account();
+        populateSpinner();
 
         return v;
+    }
+
+    public void populateSpinner(){
+        List<String> spinnerArray =  new ArrayList<String>();
+        spinnerArray.add("Male");
+        spinnerArray.add("Female");
+        spinnerArray.add("I'd rather not say");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+               getContext(), android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        gender.setAdapter(adapter);
     }
 
     public void setBtn_create_account(){
@@ -68,7 +100,10 @@ public class Register extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if(TextUtils.isEmpty(et_fname.getText().toString())){
+                if(TextUtils.isEmpty(et_age.getText().toString())){
+                    et_age.setError("Please enter your Age.");
+                    et_age.requestFocus();
+                }else if(TextUtils.isEmpty(et_fname.getText().toString())){
                     et_fname.setError("Please enter your First Name.");
                     et_fname.requestFocus();
                 }else if(TextUtils.isEmpty(et_lname.getText().toString())){
@@ -102,16 +137,39 @@ public class Register extends Fragment {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){
 
-                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                user.sendEmailVerification();
-                                Toast.makeText(getActivity(), "We sent a verification email, please check to verify your account.",
-                                        Toast.LENGTH_LONG).show();
+                                //save data to firestore
+                                Map<String, Object> users = new HashMap<>();
+                                users.put("email", et_email.getText().toString());
+                                users.put("firstName", et_fname.getText().toString());
+                                users.put("lastName", et_lname.getText().toString());
+                                users.put("age", et_age.getText().toString());
+                                users.put("gender", gender.getSelectedItem().toString());
 
-                                Login login = new Login();
-                                FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
-                                transaction.replace(R.id.mainLayout, login).addToBackStack("tag");
-                                transaction.commit();
+                                db.collection("users").document(et_email.getText().toString())
+                                        .set(users)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
 
+                                                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                                                user.sendEmailVerification();
+
+                                                                Toast.makeText(getActivity(), "We sent a verification email, please check to verify your account.",
+                                                                        Toast.LENGTH_LONG).show();
+
+                                                                Login login = new Login();
+                                                                FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                                                                transaction.replace(R.id.mainLayout, login).addToBackStack("tag");
+                                                                transaction.commit();
+                                                            }
+                                                        })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getActivity(), "Error, please try again later.",
+                                                                Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
                             }
                         }
                     });

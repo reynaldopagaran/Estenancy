@@ -3,10 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/activity_main.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_login.xml" value="0.22" />
-        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_register.xml" value="0.25" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_home.xml" value="0.22" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_home2.xml" value="0.24444444444444444" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_login.xml" value="0.2" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_message.xml" value="0.24444444444444444" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_notification.xml" value="0.23506944444444444" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_profile.xml" value="0.2" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_register.xml" value="0.2" />
         <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_reset_password.xml" value="0.24444444444444444" />
+        <entry key="..\:/Users/Andromeda/AndroidStudioProjects/Estenancy/app/src/main/res/layout/fragment_search.xml" value="0.24444444444444444" />
       </map>
     </option>
   </component>
