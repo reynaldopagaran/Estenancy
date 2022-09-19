@@ -44,6 +44,8 @@ public class Home extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+
     }
 
     @Override
@@ -63,8 +65,6 @@ public class Home extends Fragment {
         //method calls
         logout();
         pager();
-
-
 
 
         return v;

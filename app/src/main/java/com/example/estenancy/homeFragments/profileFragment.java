@@ -32,8 +32,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.estenancy.Home;
 import com.example.estenancy.Login;
 import com.example.estenancy.R;
+import com.example.estenancy.createPost;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -112,7 +114,20 @@ public class profileFragment extends Fragment {
         setNamePhoto();
         setProfilePhoto();
         editProfile();
+        addPost();
         return v;
+    }
+
+    public void addPost(){
+        addListing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createPost createPost = new createPost();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                transaction.replace(R.id.mainLayout, createPost).addToBackStack("tag");
+                transaction.commit();
+            }
+        });
     }
 
     public void editProfile(){
