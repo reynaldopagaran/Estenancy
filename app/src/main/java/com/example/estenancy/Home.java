@@ -62,6 +62,8 @@ public class Home extends Fragment {
         viewPager2.setAdapter(myViewPagerAdapter);
         logout = v.findViewById(R.id.logout);
 
+        viewPager2.setUserInputEnabled(false);
+
         //method calls
         logout();
         pager();

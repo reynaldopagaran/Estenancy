@@ -1,4 +1,12 @@
 package com.example.estenancy;
+import static android.view.textclassifier.TextClassifier.TYPE_ADDRESS;
+import static com.mapbox.api.geocoding.v5.GeocodingCriteria.MODE_PLACES;
+import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_COUNTRY;
+import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_DISTRICT;
+import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_LOCALITY;
+import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_NEIGHBORHOOD;
+import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_PLACE;
+import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_POI;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 import androidx.annotation.NonNull;
@@ -11,68 +19,46 @@ import androidx.fragment.app.FragmentTransaction;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
-import android.location.LocationRequest;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.android.libraries.maps.model.Marker;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.karumi.dexter.listener.single.PermissionListener;
-import com.mapbox.android.core.location.LocationEngine;
-import com.mapbox.android.core.location.LocationEngineCallback;
-import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.geocoding.v5.GeocodingCriteria;
+import com.mapbox.api.geocoding.v5.MapboxGeocoding;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
-import com.mapbox.mapboxsdk.annotations.BaseMarkerOptions;
+import com.mapbox.api.geocoding.v5.models.GeocodingResponse;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.location.LocationComponent;
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
-import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.maps.SupportMapFragment;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
-import com.mapbox.mapboxsdk.plugins.places.autocomplete.ui.PlaceAutocompleteFragment;
 import com.mapbox.mapboxsdk.plugins.places.picker.PlacePicker;
 import com.mapbox.mapboxsdk.plugins.places.picker.model.PlacePickerOptions;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MapsFragment extends Fragment implements PermissionsListener {
@@ -83,10 +69,12 @@ public class MapsFragment extends Fragment implements PermissionsListener {
     FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_CODE = 101;
     private MapView mapView;
-    TextView search;
+    TextView search, currentLocText;
     Button done;
     LatLng latLngDone;
-
+    Point firstResultPoint;
+    GeocodingCriteria geocodingCriteria;
+    GeocodingCriteria.GeocodingTypeCriteria geocodingTypeCriteria;
     String token = "sk.eyJ1IjoiYW5kcm9tZWRhNyIsImEiOiJjbDg2YnZpa2IwNzk3M3VvaGN3ZnczNjcwIn0.axp5uCx677xYd9E6vxwWWA";
 
     @Override
@@ -109,6 +97,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
         search = v.findViewById(R.id.search);
         done = v.findViewById(R.id.btn_done);
         mapView = v.findViewById(R.id.mapView);
+        currentLocText = v.findViewById(R.id.currentLoc);
         mapView.onCreate(savedInstanceState);
 
         //method calls
@@ -130,13 +119,11 @@ public class MapsFragment extends Fragment implements PermissionsListener {
                 String lat = Location.convert(latLngDone.getLatitude(), Location.FORMAT_DEGREES);
                 String longi = Location.convert(latLngDone.getLongitude(), Location.FORMAT_DEGREES);
 
-                Toast.makeText(getActivity(), lat +", "+longi,
-                        Toast.LENGTH_LONG).show();
-
                 createPost createPost = new createPost();
                 Bundle bundle = new Bundle();
                 bundle.putString("lat", lat);
                 bundle.putString("longi", longi);
+
                 createPost.setArguments(bundle);
 
 
@@ -189,13 +176,11 @@ public class MapsFragment extends Fragment implements PermissionsListener {
                     public boolean onMapClick(@NonNull LatLng point) {
 
                        mapboxMap.removeAnnotations();
-
                         mapboxMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(point))
                                 .title("Current Location"));
 
                         latLngDone = point;
-
                         return true;
                     }
                 });
@@ -219,15 +204,18 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
 
     public void searchLoc() {
+
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new PlaceAutocomplete.IntentBuilder()
                         .accessToken(token)
                         .placeOptions(PlaceOptions.builder()
                                 .backgroundColor(Color.parseColor("#EEEEEE"))
                                 .limit(10)
                                 .country("PH")
+                                .geocodingTypes(TYPE_POI)
                                 .build(PlaceOptions.MODE_CARDS))
                         .build(getActivity());
                 startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);
@@ -258,11 +246,58 @@ public class MapsFragment extends Fragment implements PermissionsListener {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_AUTOCOMPLETE) {
+
+            //getting location name
             CarmenFeature feature = PlaceAutocomplete.getPlace(data);
 
-            Toast.makeText(getActivity(), feature.text(),
-                    Toast.LENGTH_LONG).show();
+            MapboxGeocoding mapboxGeocoding = MapboxGeocoding.builder()
+                    .accessToken(token)
+                    .query(feature.text())
+                    .build();
+
+            currentLocText.setText(feature.text());
+
+            mapboxGeocoding.enqueueCall(new Callback<GeocodingResponse>() {
+                @Override
+                public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
+                    List<CarmenFeature> results = response.body().features();
+                    if (results.size() > 0) {
+                        // Move Map Camera after search result
+                        firstResultPoint = results.get(0).center();
+                        mapView.getMapAsync(new OnMapReadyCallback() {
+                            @Override
+                            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                                mapboxMap.setStyle(Style.MAPBOX_STREETS);
+                                CameraPosition position = new CameraPosition.Builder()
+                                        .target(new LatLng(firstResultPoint.latitude(), firstResultPoint.longitude()))
+                                        .zoom(16)
+                                        .tilt(20)
+                                        .build();
+                                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+
+                                mapboxMap.removeAnnotations();
+                                mapboxMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(firstResultPoint.latitude(), firstResultPoint.longitude()))
+                                        .title("Current Location"));
+
+                                latLngDone = new LatLng(firstResultPoint.latitude(), firstResultPoint.longitude());
+                            }
+                        });
+
+                    } else {
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GeocodingResponse> call, Throwable t) {
+                    Toast.makeText(getActivity(), "Location not found.",
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+
         }
 
         //place pick
@@ -284,48 +319,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
     }
-    // Add the mapView lifecycle to the activity's lifecycle methods
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mapView.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mapView.onStop();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mapView.onDestroy();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
-    }
 
     @Override
     public void onExplanationNeeded(List<String> list) {

@@ -2,7 +2,6 @@ package com.example.estenancy.homeFragments;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,12 +16,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,34 +31,36 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.estenancy.Home;
-import com.example.estenancy.Login;
+import com.example.estenancy.Classes.my_listing;
+import com.example.estenancy.Classes.my_listing_get_post;
 import com.example.estenancy.R;
 import com.example.estenancy.createPost;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -75,7 +76,12 @@ public class profileFragment extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageReference;
     private FirebaseUser firebaseUser;
-    Fragment fragment = this;
+
+    //for my listing
+    RecyclerView recyclerView;
+    List<my_listing_get_post> myListing;
+
+
 
     public profileFragment() {
         // Required empty public constructor
@@ -110,13 +116,73 @@ public class profileFragment extends Fragment {
         storageReference = storage.getReference();
         firebaseUser = mAuth.getCurrentUser();
 
+        //my listing
+        myListing = new ArrayList<>();
+        recyclerView = v.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
         //method calls
         setNamePhoto();
         setProfilePhoto();
         editProfile();
         addPost();
+        showMyListing();
         return v;
     }
+
+    //start of my listing feed
+
+    public void showMyListing(){
+
+        db.collection("posts")
+                .whereEqualTo("email", firebaseUser.getEmail())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String title = document.getString("title_post");
+                                String id = document.getString("id");
+                                Timestamp timeStampFire = document.getTimestamp("timeStamp");
+                                Date date = timeStampFire.toDate();
+                                String timeStamp  = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date);
+                                //start of my thumbnail
+                                storageReference = FirebaseStorage.getInstance().getReference().child("posts/"+id+"/site_image_0");
+                                try{
+                                    final File localFile = File.createTempFile("site_image_0                                                                                           ", "jpg");
+                                    storageReference.getFile(localFile)
+                                            .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                                    Bitmap thumbnail = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                                                    myListing.add(new my_listing_get_post(title,timeStamp, thumbnail));
+                                                    storageReference = storage.getReference();
+                                                    my_listing my_listing = new my_listing(getContext(), myListing);
+                                                    recyclerView.setAdapter(my_listing);
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    storageReference = storage.getReference();
+                                                }
+                                            });
+                                }catch (Exception e){
+
+                                }
+                                //end of my thumbnail;
+
+                            }
+                        } else {
+
+                        }
+                    }
+                });
+    }
+
+    //end of my listing feed
+
 
     public void addPost(){
         addListing.setOnClickListener(new View.OnClickListener() {
