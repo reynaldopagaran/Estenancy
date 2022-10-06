@@ -11,7 +11,7 @@
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-
+        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline80"
         app:layout_constraintEnd_toStartOf="@+id/guideline78"
         app:layout_constraintStart_toStartOf="@+id/guideline79"
@@ -43,14 +43,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="700dp" />
+        app:layout_constraintGuide_begin="550dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline81"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="715dp" />
+        app:layout_constraintGuide_begin="613dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline82"
@@ -76,12 +76,12 @@
     <Button
         android:id="@+id/btn_done"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:text="Done"
-        app:layout_constraintBottom_toTopOf="@+id/guideline82"
+        app:layout_constraintBottom_toTopOf="@+id/guideline81"
         app:layout_constraintEnd_toStartOf="@+id/guideline84"
         app:layout_constraintStart_toStartOf="@+id/guideline83"
-        app:layout_constraintTop_toTopOf="@+id/guideline81" />
+        app:layout_constraintTop_toBottomOf="@+id/mapView" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline85"

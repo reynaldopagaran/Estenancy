@@ -143,45 +143,16 @@ public class Post extends Fragment {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     uriString.add(uri.toString());
-
                                     BeanBitFrame beanBitFrame = new BeanBitFrame();
                                     beanBitFrame.setWidth(500);
                                     beanBitFrame.setHeight(200);
                                     beanBitFrame.setImageLink(uri.toString());
                                     beanBitFrame.setLoaded(true);
                                     beanImageList.add(beanBitFrame);
-
                                     viewFrame.showBitFrame(beanImageList, new FrameCallback() {
                                         @Override
                                         public void imageClick(ImageType imageType, int imagePosition, String imageLink, ViewFrame actionableViewFrame) {
-
-                                            //
-
-                                            LinearLayout layout = new LinearLayout(getContext());
-                                            layout.setOrientation(LinearLayout.VERTICAL);
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                                            builder.setTitle("Site Photos");
-
-
-                                                ZoomageView zoomageView = new ZoomageView(getContext());
-                                                Glide.with(getActivity())
-                                                        .load(uriString.get(0))
-                                                        .into(zoomageView);
-                                                layout.addView(zoomageView);
-
-
-
-                                            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-
-                                                }
-                                            });
-                                            builder.setView(layout);
-                                            builder.show();
-                                            //
-
-/*
+                                            /*
                                             ImageViewer viewer = new ImageViewer();
                                             Bundle bundle = new Bundle();
                                             ArrayList<String> strings = new ArrayList<String>();
@@ -192,8 +163,7 @@ public class Post extends Fragment {
                                             transaction.replace(R.id.mainLayout, viewer).addToBackStack("tag");
                                             transaction.commit();
 
- */
-
+                                             */
                                         }
 
                                         @Override
@@ -215,11 +185,13 @@ public class Post extends Fragment {
                                         public void loadedFrameColors(int lastLoadedFrameColor, int mixedLoadedColor, int inverseMixedLoadedColor, ViewFrame actionableViewFrame) {
 
                                         }
-                                    }, FrameType.FRAMED);
-
+                                    }, FrameType.UNFRAMED);
                                 }
                             });
                         }
+                        //
+
+                        //
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override

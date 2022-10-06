@@ -23,7 +23,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
+import android.location.LocationRequest;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +36,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.api.geocoding.v5.GeocodingCriteria;
 import com.mapbox.api.geocoding.v5.MapboxGeocoding;
@@ -49,13 +59,16 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.module.http.HttpRequestUtil;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
 import com.mapbox.mapboxsdk.plugins.places.picker.PlacePicker;
 import com.mapbox.mapboxsdk.plugins.places.picker.model.PlacePickerOptions;
 
 import java.util.List;
+import java.util.Locale;
 
+import im.delight.android.location.SimpleLocation;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -76,6 +89,8 @@ public class MapsFragment extends Fragment implements PermissionsListener {
     GeocodingCriteria geocodingCriteria;
     GeocodingCriteria.GeocodingTypeCriteria geocodingTypeCriteria;
     String token = "sk.eyJ1IjoiYW5kcm9tZWRhNyIsImEiOiJjbDg2YnZpa2IwNzk3M3VvaGN3ZnczNjcwIn0.axp5uCx677xYd9E6vxwWWA";
+    private SimpleLocation simpleLocation;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -99,9 +114,12 @@ public class MapsFragment extends Fragment implements PermissionsListener {
         mapView = v.findViewById(R.id.mapView);
         currentLocText = v.findViewById(R.id.currentLoc);
         mapView.onCreate(savedInstanceState);
+        HttpRequestUtil.setLogEnabled(false);
+
+        simpleLocation = new SimpleLocation(getContext());
 
         //method calls
-        getLatLang();
+
         showMap();
         searchLoc();
         setDone();
@@ -111,7 +129,6 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
 
 //METHODS
-
     public void setDone(){
         done.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +145,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
 
                 FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
-                transaction.replace(R.id.mainLayout, createPost);
+                transaction.replace(R.id.mainLayout, createPost).addToBackStack("tag");
                 transaction.commit();
 
             }
@@ -137,7 +154,6 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
 @SuppressLint("MissingPermission")
     private void getLatLang() {
-
         if(ContextCompat.checkSelfPermission(
                 getContext(), Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED
@@ -151,54 +167,57 @@ public class MapsFragment extends Fragment implements PermissionsListener {
             return;
 
         }else{
-            Task<Location> task = fusedLocationProviderClient.getLastLocation();
-            task.addOnSuccessListener(new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    if(location != null){
-                        currentLocation = location;
-                        latLngDone = new LatLng(location.getLatitude(), location.getLongitude());
-                    }
-                }
-            });
+
+            if (!simpleLocation.hasLocationEnabled()) {
+                // ask the user to enable location access
+                SimpleLocation.openSettings(getContext());
+            }else{
+                latLngDone = new LatLng(simpleLocation.getLatitude(), simpleLocation.getLongitude());
+            }
         }
     }
 
 
 
     public void showMap(){
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        getLatLang();
+        try{
+            mapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(@NonNull MapboxMap mapboxMap) {
 
-                mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
-                    @Override
-                    public boolean onMapClick(@NonNull LatLng point) {
+                    mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                        @Override
+                        public boolean onMapClick(@NonNull LatLng point) {
 
-                       mapboxMap.removeAnnotations();
+                            mapboxMap.removeAnnotations();
+                            mapboxMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(point))
+                                    .title("Current Location"));
+
+                            latLngDone = point;
+                            return true;
+                        }
+                    });
                         mapboxMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(point))
+                                .position(new LatLng(latLngDone))
                                 .title("Current Location"));
 
-                        latLngDone = point;
-                        return true;
-                    }
-                });
+                    mapboxMap.setStyle(Style.MAPBOX_STREETS);
 
-               mapboxMap.addMarker(new MarkerOptions()
-                       .position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
-                       .title("Current Location"));
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(new LatLng(latLngDone))
+                            .zoom(16)
+                            .tilt(20)
+                            .build();
+                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+                }
+            });
+        }catch (Exception e){
+            Toast.makeText(getActivity(), "Oops, an error occurred. Please check your network and try again.",
+                    Toast.LENGTH_LONG).show();
+        }
 
-                mapboxMap.setStyle(Style.MAPBOX_STREETS);
-                CameraPosition position = new CameraPosition.Builder()
-                        .target(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
-                        .zoom(16)
-                        .tilt(20)
-                        .build();
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
-
-            }
-        });
 
     }
 
@@ -308,7 +327,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
         switch (REQUEST_CODE){
             case REQUEST_CODE:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    getLatLang();
+
                 }
                 break;
         }
@@ -331,5 +350,16 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        simpleLocation.beginUpdates();
+    }
+
+    @Override
+    public void onPause() {
+        simpleLocation.endUpdates();
+        super.onPause();
+    }
 
 }

@@ -52,7 +52,7 @@ public class Login extends Fragment {
 
 
     public Login() {
-        // Required empty public constructor
+        //Required empty public constructor
     }
 
     public static Login newInstance(String param1, String param2) {

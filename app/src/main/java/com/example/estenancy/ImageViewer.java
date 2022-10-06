@@ -1,5 +1,7 @@
 package com.example.estenancy;
 
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -13,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.estenancy.Adapters.ImagesAdapter;
+import com.example.estenancy.Adapters.PostImagesAdapter;
 import com.jsibbold.zoomage.ZoomageView;
 
 import java.util.ArrayList;
@@ -20,9 +24,8 @@ import java.util.ArrayList;
 
 public class ImageViewer extends Fragment {
 
-    ArrayList<String> strings = new ArrayList<String>();
-    ZoomageView zoomageView;
-    LinearLayout linearLayout;
+    ViewPager2 viewPager2;
+    private ArrayList<String> imagesUri;
 
     public ImageViewer() {
         // Required empty public constructor
@@ -43,18 +46,11 @@ public class ImageViewer extends Fragment {
                              Bundle savedInstanceState) {
 
         View v =  inflater.inflate(R.layout.fragment_image_viewer, container, false);
-       // zoomageView = v.findViewById(R.id.img);
-        strings = ImageViewer.this.getArguments().getStringArrayList("uri");
-        LinearLayout layout = new LinearLayout(getContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        for(int i = 0; i < strings.size(); i++){
-            ZoomageView zoomageView = new ZoomageView(getContext());
-            Glide.with(this)
-                    .load(strings.get(i))
-                    .into(zoomageView);
-            layout.addView(zoomageView);
-        }
+        viewPager2 = v.findViewById(R.id.postViewPager);
+        imagesUri = new ArrayList<>();
+        imagesUri =  ImageViewer.this.getArguments().getStringArrayList("uri");
+        PostImagesAdapter postImagesAdapter = new PostImagesAdapter(getContext(), imagesUri);
+        viewPager2.setAdapter(postImagesAdapter);
 
         return v;
     }

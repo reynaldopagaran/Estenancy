@@ -74,6 +74,7 @@
 
     <proj.me.bitframe.ViewFrame
         android:id="@+id/view_frame"
+        android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:imageScaleType="centerCrop"
