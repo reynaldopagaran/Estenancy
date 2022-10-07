@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,8 +34,10 @@ import android.widget.Toast;
 
 import com.example.estenancy.Classes.my_listing;
 import com.example.estenancy.Classes.my_listing_get_post;
+import com.example.estenancy.Home;
 import com.example.estenancy.R;
 import com.example.estenancy.createPost;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -76,6 +79,8 @@ public class profileFragment extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageReference;
     private FirebaseUser firebaseUser;
+    ShimmerFrameLayout shimmerFrameLayout;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     //for my listing
     RecyclerView recyclerView;
@@ -109,7 +114,8 @@ public class profileFragment extends Fragment {
         addListing = v.findViewById(R.id.btn_add_listing);
         editProfile = v.findViewById(R.id.btn_edit_profile);
         profilePhoto = v.findViewById(R.id.profile_photo);
-
+        shimmerFrameLayout = v.findViewById(R.id.shimmer1);
+       // swipeRefreshLayout = v.findViewById(R.id.swipeRefreshLayout1);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -117,6 +123,7 @@ public class profileFragment extends Fragment {
         firebaseUser = mAuth.getCurrentUser();
 
         //my listing
+        shimmerFrameLayout.startShimmer();
         myListing = new ArrayList<>();
         recyclerView = v.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -128,10 +135,24 @@ public class profileFragment extends Fragment {
         editProfile();
         addPost();
         showMyListing();
+       // refreshFeed();
         return v;
     }
 
     //start of my listing feed
+
+    public void refreshFeed(){
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+                profileFragment profileFragment = new profileFragment();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.mainLayout,profileFragment);
+                transaction.commit();
+            }
+        });
+    }
 
     public void showMyListing(){
 
@@ -156,6 +177,8 @@ public class profileFragment extends Fragment {
                                             .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                                 @Override
                                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                                    shimmerFrameLayout.stopShimmer();
+                                                    shimmerFrameLayout.setVisibility(View.GONE);
                                                     Bitmap thumbnail = BitmapFactory.decodeFile(localFile.getAbsolutePath());
                                                     myListing.add(new my_listing_get_post(title,timeStamp, thumbnail));
                                                     storageReference = storage.getReference();

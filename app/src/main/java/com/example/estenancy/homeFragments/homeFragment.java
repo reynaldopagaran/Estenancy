@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import com.example.estenancy.Classes.post_model_recyclerView;
 import com.example.estenancy.Home;
 import com.example.estenancy.Post;
 import com.example.estenancy.R;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -58,6 +60,9 @@ public class homeFragment extends Fragment {
     private FirebaseUser firebaseUser;
     View v;
     SwipeRefreshLayout swipeRefreshLayout;
+    Fragment fragment;
+    ShimmerFrameLayout shimmerFrameLayout;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,7 +71,7 @@ public class homeFragment extends Fragment {
         v =  inflater.inflate(R.layout.fragment_home2, container, false);
 
         array_getPosts = new ArrayList<>();
-
+        fragment = homeFragment.this;
         //firebase init
         //firebase init
         mAuth = FirebaseAuth.getInstance();
@@ -74,6 +79,9 @@ public class homeFragment extends Fragment {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         firebaseUser = mAuth.getCurrentUser();
+        shimmerFrameLayout = v.findViewById(R.id.shimmer);
+
+        shimmerFrameLayout.startShimmer();
 
         swipeRefreshLayout = v.findViewById(R.id.swipeRefreshLayout);
 
@@ -99,8 +107,6 @@ public class homeFragment extends Fragment {
             }
         });
     }
-
-
 
     public void getPosts(){
         db.collection("posts").orderBy("timeStamp", Query.Direction.ASCENDING)
@@ -144,6 +150,8 @@ public class homeFragment extends Fragment {
                                                                                         .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                                                                             @Override
                                                                                             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                                                                                shimmerFrameLayout.stopShimmer();
+                                                                                                shimmerFrameLayout.setVisibility(View.GONE);
                                                                                                 Bitmap thumbnail = BitmapFactory.decodeFile(localFile.getAbsolutePath());
                                                                                                 array_getPosts.add(new post_model_getPosts(title, name, dp, thumbnail, timeStamp, id, email));
                                                                                                 storageReference = storage.getReference();
@@ -193,7 +201,6 @@ public class homeFragment extends Fragment {
                     }
                 });
 
-
     }
 
     private void showPost(String id, String email){
@@ -207,14 +214,5 @@ public class homeFragment extends Fragment {
         transaction.commit();
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
 
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-    }
 }

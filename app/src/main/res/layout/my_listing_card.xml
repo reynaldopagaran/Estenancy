@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/my_title_card"
-            android:text="Title Post"
+            android:text="--- ---"
             android:textSize="20dp"
             android:textStyle="bold"/>
 
@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/timeStamp"
-            android:text="Time Stamp"
+            android:text="--- ---"
             android:textSize="10dp" />
 
         <ImageView

@@ -145,7 +145,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
 
                 FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
-                transaction.replace(R.id.mainLayout, createPost).addToBackStack("tag");
+                transaction.replace(R.id.mainLayout, createPost);
                 transaction.commit();
 
             }

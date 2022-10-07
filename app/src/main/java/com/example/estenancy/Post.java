@@ -152,6 +152,7 @@ public class Post extends Fragment {
                                     viewFrame.showBitFrame(beanImageList, new FrameCallback() {
                                         @Override
                                         public void imageClick(ImageType imageType, int imagePosition, String imageLink, ViewFrame actionableViewFrame) {
+
                                             /*
                                             ImageViewer viewer = new ImageViewer();
                                             Bundle bundle = new Bundle();
@@ -185,7 +186,7 @@ public class Post extends Fragment {
                                         public void loadedFrameColors(int lastLoadedFrameColor, int mixedLoadedColor, int inverseMixedLoadedColor, ViewFrame actionableViewFrame) {
 
                                         }
-                                    }, FrameType.UNFRAMED);
+                                    }, FrameType.FRAMED);
                                 }
                             });
                         }
@@ -272,6 +273,4 @@ public class Post extends Fragment {
                     }
                 });
     }
-
-
 }
