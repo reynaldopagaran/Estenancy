@@ -28,7 +28,7 @@
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name"
+            android:text="--- ---"
             android:textSize="22dp"
             android:textStyle="bold"
             android:layout_marginBottom="20dp"/>
@@ -36,23 +36,21 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center"
             android:layout_marginBottom="20dp">
 
             <Button
                 android:id="@+id/btn_add_listing"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Add Listing"
-                android:layout_marginRight="20dp"/>
+                android:text="Add Listing"/>
 
             <Button
                 android:id="@+id/btn_edit_profile"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Edit Profile"
-                android:layout_marginLeft="20dp"/>
+                android:text="Edit Profile" />
 
         </LinearLayout>
 
