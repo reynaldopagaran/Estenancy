@@ -120,7 +120,7 @@ public class Home extends Fragment {
 
                                 Login login = new Login();
                                 FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
-                                transaction.replace(R.id.mainLayout, login).addToBackStack("tag");
+                                transaction.replace(R.id.mainLayout, login);
                                 transaction.commit();
                             }
                         })
