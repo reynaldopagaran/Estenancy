@@ -9,10 +9,12 @@ public class post_model_getPosts {
     String id;
     String timeStampx;
     String email;
+    String stat;
+    String desc;
     Bitmap profilePic;
     Bitmap thumbnail;
 
-    public post_model_getPosts(String title, String name, Bitmap profilePic, Bitmap thumbnail, String timeStampx, String id, String email) {
+    public post_model_getPosts(String title, String name, Bitmap profilePic, Bitmap thumbnail, String timeStampx, String id, String email, String stat, String desc) {
         this.setTitle(title);
         this.setName(name);
         this.setProfilePic(profilePic);
@@ -20,6 +22,24 @@ public class post_model_getPosts {
         this.setTimeStampx(timeStampx);
         this.setId(id);
         this.setEmail(email);
+        this.setStat(stat);
+        this.setDesc(desc);
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getStat() {
+        return stat;
+    }
+
+    public void setStat(String stat) {
+        this.stat = stat;
     }
 
     public String getEmail() {

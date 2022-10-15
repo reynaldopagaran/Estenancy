@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -15,11 +17,13 @@ public class PostImagesAdapter extends RecyclerView.Adapter<PostImagesAdapter.Vi
 
     Context context;
     ArrayList<String> imageUris;
+    ArrayList<String> names;
     LayoutInflater layoutInflater;
 
-    public PostImagesAdapter(Context context, ArrayList<String> imagesUris) {
+    public PostImagesAdapter(Context context, ArrayList<String> imagesUris, ArrayList<String> names) {
         this.context = context;
         this.imageUris = imagesUris;
+        this.names = names;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -27,17 +31,18 @@ public class PostImagesAdapter extends RecyclerView.Adapter<PostImagesAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
-       // View v = LayoutInflater.from(context).inflate(R.layout.zoomage_view, parent, false);
-       // View view = LayoutInflater.from(context).inflate(R.layout.zoomage_view, parent, false);
-       // return new ViewHolder(view);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.zoomage_view,parent,false);
+        return new ViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         Glide.with(context)
                 .load(imageUris.get(position))
                 .into(holder.zoomageView);
+
+        holder.cat.setText(names.get(position));
     }
 
     @Override
@@ -48,11 +53,13 @@ public class PostImagesAdapter extends RecyclerView.Adapter<PostImagesAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ZoomageView zoomageView;
+        TextView cat;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             zoomageView = itemView.findViewById(R.id.myZoomageView);
+            cat = itemView.findViewById(R.id.cat_post);
 
         }
     }

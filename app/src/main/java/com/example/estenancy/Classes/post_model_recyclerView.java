@@ -1,6 +1,12 @@
 package com.example.estenancy.Classes;
 
+import static android.text.Layout.JUSTIFICATION_MODE_INTER_WORD;
+
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.text.LineBreaker;
+import android.os.Build;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,37 +45,24 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
     public void onBindViewHolder(@NonNull ViewHolder holder,int position) {
 
         holder.title.setText(array_getPosts.get(position).getTitle());
+        holder.stat.setText(array_getPosts.get(position).getStat());
         holder.name.setText(array_getPosts.get(position).getName());
         holder.timeStampx.setText(array_getPosts.get(position).getTimeStampx());
         holder.profile_post.setImageBitmap(array_getPosts.get(position).getProfilePic());
         holder.thumbnail.setImageBitmap(array_getPosts.get(position).getThumbnail());
+        holder.descr.setText(array_getPosts.get(position).getDesc());
+
+        if(array_getPosts.get(position).getStat().equals("Available")){
+            holder.stat.setTextColor(Color.parseColor("#01DA15"));
+
+        }else{
+            holder.stat.setTextColor(Color.parseColor("#FD0000"));
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 itemClickListener.onItemClick(array_getPosts.get(position));
-            }
-        });
-
-
-        holder.book.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        holder.msg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        holder.map.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
             }
         });
 
@@ -88,21 +81,18 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profile_post;
-        TextView name, title, timeStampx;
+        TextView name, title, timeStampx,stat, descr;
         ImageView thumbnail;
-        Button book, msg, map;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
+            stat = itemView.findViewById(R.id.stat);
             profile_post = itemView.findViewById(R.id.card_profile);
             name = itemView.findViewById(R.id.name);
             timeStampx = itemView.findViewById(R.id.timeStampx);
             title = itemView.findViewById(R.id.title_card);
             thumbnail = itemView.findViewById(R.id.thumbnail);
-            book = itemView.findViewById(R.id.book_card);
-            msg = itemView.findViewById(R.id.msg_card);
-            map = itemView.findViewById(R.id.map_card);
+            descr = itemView.findViewById(R.id.desc_post);
 
 
             //remove comment on method call if you want animation on cards

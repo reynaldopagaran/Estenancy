@@ -26,7 +26,7 @@ public class ImageViewer extends Fragment {
 
     ViewPager2 viewPager2;
     private ArrayList<String> imagesUri;
-
+    private ArrayList<String> names;
     public ImageViewer() {
         // Required empty public constructor
     }
@@ -46,11 +46,21 @@ public class ImageViewer extends Fragment {
                              Bundle savedInstanceState) {
 
         View v =  inflater.inflate(R.layout.fragment_image_viewer, container, false);
+
         viewPager2 = v.findViewById(R.id.postViewPager);
         imagesUri = new ArrayList<>();
-        imagesUri =  ImageViewer.this.getArguments().getStringArrayList("uri");
-        PostImagesAdapter postImagesAdapter = new PostImagesAdapter(getContext(), imagesUri);
-        viewPager2.setAdapter(postImagesAdapter);
+        names = new ArrayList<>();
+
+        try{
+            imagesUri =  ImageViewer.this.getArguments().getStringArrayList("uri");
+            names =  ImageViewer.this.getArguments().getStringArrayList("names");
+            PostImagesAdapter postImagesAdapter = new PostImagesAdapter(getContext(), imagesUri, names);
+            viewPager2.setAdapter(postImagesAdapter);
+        }catch (Exception e){
+            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+        }
+
+
 
         return v;
     }

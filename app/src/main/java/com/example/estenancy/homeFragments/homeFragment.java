@@ -118,6 +118,8 @@ public class homeFragment extends Fragment {
                                String title = document.getString("title_post");
                                String email = document.getString("email");
                                String id = document.getString("id");
+                               String stat = document.getString("status");
+                               String descr = document.getString("description");
                                 Timestamp timeStampFire = document.getTimestamp("timeStamp");
                                 Date date = timeStampFire.toDate();
                                 String timeStamp  = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date);
@@ -153,7 +155,7 @@ public class homeFragment extends Fragment {
                                                                                                 shimmerFrameLayout.stopShimmer();
                                                                                                 shimmerFrameLayout.setVisibility(View.GONE);
                                                                                                 Bitmap thumbnail = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                                                                                array_getPosts.add(new post_model_getPosts(title, name, dp, thumbnail, timeStamp, id, email));
+                                                                                                array_getPosts.add(new post_model_getPosts(title, name, dp, thumbnail, timeStamp, id, email,stat, descr));
                                                                                                 storageReference = storage.getReference();
                                                                                                 post_model_recyclerView post_model_recyclerView = new post_model_recyclerView(getContext(), array_getPosts, new post_model_recyclerView.ItemClickListener() {
                                                                                                     @Override

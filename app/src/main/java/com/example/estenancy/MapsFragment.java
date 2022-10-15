@@ -1,13 +1,5 @@
 package com.example.estenancy;
-import static android.view.textclassifier.TextClassifier.TYPE_ADDRESS;
-import static com.mapbox.api.geocoding.v5.GeocodingCriteria.MODE_PLACES;
-import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_COUNTRY;
-import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_DISTRICT;
-import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_LOCALITY;
-import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_NEIGHBORHOOD;
-import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_PLACE;
 import static com.mapbox.api.geocoding.v5.GeocodingCriteria.TYPE_POI;
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,12 +14,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
-import android.location.LocationRequest;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,14 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.api.geocoding.v5.GeocodingCriteria;
 import com.mapbox.api.geocoding.v5.MapboxGeocoding;
@@ -64,9 +46,10 @@ import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
 import com.mapbox.mapboxsdk.plugins.places.picker.PlacePicker;
 import com.mapbox.mapboxsdk.plugins.places.picker.model.PlacePickerOptions;
+import com.mapbox.search.common.AsyncOperationTask;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import im.delight.android.location.SimpleLocation;
 import retrofit2.Call;
@@ -87,10 +70,14 @@ public class MapsFragment extends Fragment implements PermissionsListener {
     LatLng latLngDone;
     Point firstResultPoint;
     GeocodingCriteria geocodingCriteria;
+    private AsyncOperationTask searchRequestTask;
     GeocodingCriteria.GeocodingTypeCriteria geocodingTypeCriteria;
     String token = "sk.eyJ1IjoiYW5kcm9tZWRhNyIsImEiOiJjbDg2YnZpa2IwNzk3M3VvaGN3ZnczNjcwIn0.axp5uCx677xYd9E6vxwWWA";
     private SimpleLocation simpleLocation;
-
+    String bundleAddress, lat, longi;
+    private Geocoder geocoder;
+    List <Address> addresses;
+    Address address;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -117,6 +104,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
         HttpRequestUtil.setLogEnabled(false);
 
         simpleLocation = new SimpleLocation(getContext());
+        geocoder = new Geocoder(getContext());
 
         //method calls
 
@@ -126,23 +114,33 @@ public class MapsFragment extends Fragment implements PermissionsListener {
         return v;
     }
 
-
-
 //METHODS
+
+   public void getAddress(LatLng latLng){
+       try {
+           addresses = geocoder.getFromLocation(latLng.getLatitude(), latLng.getLongitude(), 1);
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+       address = addresses.get(0);
+       bundleAddress =  address.getAddressLine(0);
+   }
+
     public void setDone(){
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String lat = Location.convert(latLngDone.getLatitude(), Location.FORMAT_DEGREES);
-                String longi = Location.convert(latLngDone.getLongitude(), Location.FORMAT_DEGREES);
+
+                lat = Location.convert(latLngDone.getLatitude(), Location.FORMAT_DEGREES);
+                longi = Location.convert(latLngDone.getLongitude(), Location.FORMAT_DEGREES);
 
                 createPost createPost = new createPost();
                 Bundle bundle = new Bundle();
                 bundle.putString("lat", lat);
                 bundle.putString("longi", longi);
+                bundle.putString("address", bundleAddress);
 
                 createPost.setArguments(bundle);
-
 
                 FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
                 transaction.replace(R.id.mainLayout, createPost);
@@ -151,6 +149,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
             }
         });
     }
+
 
 @SuppressLint("MissingPermission")
     private void getLatLang() {
@@ -186,22 +185,27 @@ public class MapsFragment extends Fragment implements PermissionsListener {
                 @Override
                 public void onMapReady(@NonNull MapboxMap mapboxMap) {
 
+                   getAddress(latLngDone);
+
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
-
-                            mapboxMap.removeAnnotations();
-                            mapboxMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(point))
-                                    .title("Current Location"));
-
                             latLngDone = point;
+                            getAddress(point);
+
+                                mapboxMap.removeAnnotations();
+                                mapboxMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(point))
+                                        .title(address.getAddressLine(0)));
+
                             return true;
                         }
                     });
+
+
                         mapboxMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(latLngDone))
-                                .title("Current Location"));
+                                .title(address.getAddressLine(0)));
 
                     mapboxMap.setStyle(Style.MAPBOX_STREETS);
 
@@ -217,8 +221,6 @@ public class MapsFragment extends Fragment implements PermissionsListener {
             Toast.makeText(getActivity(), "Oops, an error occurred. Please check your network and try again.",
                     Toast.LENGTH_LONG).show();
         }
-
-
     }
 
 
@@ -296,10 +298,12 @@ public class MapsFragment extends Fragment implements PermissionsListener {
                                         .build();
                                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
 
+                                getAddress(new LatLng(firstResultPoint.latitude(), firstResultPoint.longitude()));
+
                                 mapboxMap.removeAnnotations();
                                 mapboxMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(firstResultPoint.latitude(), firstResultPoint.longitude()))
-                                        .title("Current Location"));
+                                        .title(address.getAddressLine(0)));
 
                                 latLngDone = new LatLng(firstResultPoint.latitude(), firstResultPoint.longitude());
                             }
