@@ -1,7 +1,5 @@
 package com.example.estenancy;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,19 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,19 +32,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
-import com.jsibbold.zoomage.ZoomageView;
+
 
 import java.io.File;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Currency;
 import java.util.Date;
 import java.util.List;
@@ -86,6 +79,8 @@ public class Post extends Fragment {
     List<String> uriNames;
     List<String> uriId;
     Button seeMore;
+    GeoPoint latLng;
+
 
     public Post() {
         // Required empty public constructor
@@ -129,7 +124,6 @@ public class Post extends Fragment {
         viewFrame = v.findViewById(R.id.view_frame);
         address_post = v.findViewById(R.id.address_post);
         status = v.findViewById(R.id.status);
-
         seeMore = v.findViewById(R.id.seeMore);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -141,18 +135,83 @@ public class Post extends Fragment {
         book = v.findViewById(R.id.book_post);
         nav = v.findViewById(R.id.map_post);
         view_profile = v.findViewById(R.id.profile_btn);
-        reservation_payment = v.findViewById(R.id.reservation_btn);
+        reservation_payment = v.findViewById(R.id.reservation_btnx);
 
 
         id = Post.this.getArguments().getString("id_from_card");
         email = Post.this.getArguments().getString("email");
+
 
         //method calls
         getImages();
         displayPost();
         loadAuthor();
         seeMore();
+        setView_profile();
+
+        //buttons
+        navigate();
+        setMsg();
+       // buttonsVisibility(v);
         return v;
+    }
+
+
+    public void setMsg(){
+        msg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+    public void setView_profile(){
+        view_profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ViewProfile viewProfile = new ViewProfile();
+                Bundle bundle = new Bundle();
+                bundle.putString("email", email);
+                viewProfile.setArguments(bundle);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                transaction.replace(R.id.mainLayout, viewProfile).addToBackStack("tag");
+                transaction.commit();
+
+            }
+        });
+    }
+
+    public void navigate() {
+        nav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Navigation");
+                builder.setMessage(address_post.getText()+" \n\nDo you want to start the navigation?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = getActivity().getPackageManager().getLaunchIntentForPackage("com.google.android.apps.maps");
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse("google.navigation:q=" + latLng.getLatitude() + "," + latLng.getLongitude()));
+                        startActivity(intent);
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getActivity(), "Cancelled.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                builder.show();
+
+
+            }
+        });
     }
 
     public void getImages() {
@@ -185,6 +244,7 @@ public class Post extends Fragment {
                                                         }
                                                     });
                                                 }
+                                                buttonsVisibility();
                                             }
                                         }).addOnFailureListener(new OnFailureListener() {
                                             @Override
@@ -305,6 +365,7 @@ public class Post extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
 
                                 title.setText(document.getString("title_post"));
+                                latLng = document.getGeoPoint("coordinates");
 
                                 if (document.getString("status").equals("Available")) {
                                     status.setText("Available.");
@@ -340,4 +401,19 @@ public class Post extends Fragment {
                     }
                 });
     }
+
+    public void buttonsVisibility(){
+        if(!email.equals(firebaseUser.getEmail())){
+            msg.setVisibility(View.VISIBLE);
+            book.setVisibility(View.VISIBLE);
+            view_profile.setVisibility(View.VISIBLE);
+            reservation_payment.setVisibility(View.VISIBLE);
+        }else{
+            msg.setVisibility(View.GONE);
+            book.setVisibility(View.GONE);
+            view_profile.setVisibility(View.GONE);
+            reservation_payment.setVisibility(View.GONE);
+        }
+    }
+
 }

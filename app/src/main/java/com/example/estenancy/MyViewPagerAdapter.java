@@ -27,8 +27,6 @@ public class MyViewPagerAdapter extends FragmentStateAdapter {
             case 2:
                 return new messageFragment();
             case 3:
-                return new notificationFragment();
-            case 4:
                 return new profileFragment();
             default:
                 return new homeFragment();

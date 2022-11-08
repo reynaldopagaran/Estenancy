@@ -215,6 +215,4 @@ public class homeFragment extends Fragment {
         transaction.replace(R.id.mainLayout, post).addToBackStack("tag");
         transaction.commit();
     }
-
-
 }

@@ -50,6 +50,7 @@ import com.mapbox.search.common.AsyncOperationTask;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import im.delight.android.location.SimpleLocation;
 import retrofit2.Call;
@@ -114,6 +115,8 @@ public class MapsFragment extends Fragment implements PermissionsListener {
         return v;
     }
 
+
+
 //METHODS
 
    public void getAddress(LatLng latLng){
@@ -139,6 +142,16 @@ public class MapsFragment extends Fragment implements PermissionsListener {
                 bundle.putString("lat", lat);
                 bundle.putString("longi", longi);
                 bundle.putString("address", bundleAddress);
+
+                bundle.putString("label", MapsFragment.this.getArguments().getString("label"));
+                bundle.putString("id", MapsFragment.this.getArguments().getString("id"));
+                bundle.putString("title", MapsFragment.this.getArguments().getString("title"));
+                bundle.putString("month", MapsFragment.this.getArguments().getString("month"));
+                bundle.putString("res", MapsFragment.this.getArguments().getString("res"));
+                bundle.putString("desc", MapsFragment.this.getArguments().getString("desc"));
+                bundle.putParcelableArrayList("photos", MapsFragment.this.getArguments().getParcelableArrayList("photos"));
+                bundle.putStringArrayList("names", MapsFragment.this.getArguments().getStringArrayList("names"));
+
 
                 createPost.setArguments(bundle);
 

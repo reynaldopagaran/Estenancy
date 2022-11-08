@@ -6,11 +6,31 @@ public class my_listing_get_post {
 
     String my_title, timeStamp;
     Bitmap my_thumbnail;
+    String id;
+    String email;
 
-    public my_listing_get_post(String my_title,String timeStamp, Bitmap my_thumbnail) {
-        this.setMy_title(my_title);
-        this.setMy_thumbnail(my_thumbnail);
-        this.setTimeStamp(timeStamp);
+    public my_listing_get_post(String my_title, String timeStamp, Bitmap my_thumbnail, String id, String email) {
+        this.my_title = my_title;
+        this.timeStamp = timeStamp;
+        this.my_thumbnail = my_thumbnail;
+        this.id = id;
+        this.email = email;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getTimeStamp() {

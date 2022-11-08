@@ -3,8 +3,12 @@ package com.example.estenancy.Adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +22,20 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
 import com.example.estenancy.R;
 import com.example.estenancy.createPost;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,18 +43,27 @@ import java.util.Objects;
 public class ImagesAdapter extends PagerAdapter {
 
     Context context;
-    ArrayList<Uri> imageUris;
+    public ArrayList<Uri> imageUris;
+    private List<String> uriId;
+    private List<String> removedId;
     LayoutInflater layoutInflater;
     public ImageView imageView;
     public TextView cat;
     private List<String> categories;
     ViewPager viewPager;
+    private StorageReference storageReference;
+    private FirebaseStorage storage;
+    String id;
 
-    public ImagesAdapter(Context context, ArrayList<Uri> imagesUris, List<String> categories, ViewPager viewPager){
+
+    public ImagesAdapter(Context context, ArrayList<Uri> imageUris, List<String> categories, ViewPager viewPager, String id, List<String> uriId, List<String> removedId) {
         this.context = context;
-        this.imageUris = imagesUris;
+        this.imageUris = imageUris;
         this.categories = categories;
         this.viewPager = viewPager;
+        this.id = id;
+        this.uriId = uriId;
+        this.removedId = removedId;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -53,12 +75,21 @@ public class ImagesAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
+
         View v = layoutInflater.inflate(R.layout.images_single, container, false);
         imageView = (ImageView) v.findViewById(R.id.imageView);
+
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
         cat = v.findViewById(R.id.cat);
         cat.setText(categories.get(position));
-        imageView.setImageURI(imageUris.get(position));
+        // imageView.setImageURI(imageUris.get(position));
+        Glide.with(context)
+                .load(imageUris.get(position))
+                .into(imageView);
         Objects.requireNonNull(container).addView(v);
+
 
         imageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -73,6 +104,8 @@ public class ImagesAdapter extends PagerAdapter {
 
                         imageUris.remove(position);
                         categories.remove(position);
+                        removedId.add(uriId.get(position));
+                        uriId.remove(position);
                         Toast.makeText(context, "Removed.",
                                 Toast.LENGTH_SHORT).show();
 

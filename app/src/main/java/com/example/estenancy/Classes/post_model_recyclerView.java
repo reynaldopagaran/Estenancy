@@ -1,18 +1,12 @@
 package com.example.estenancy.Classes;
 
-import static android.text.Layout.JUSTIFICATION_MODE_INTER_WORD;
-
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.text.LineBreaker;
-import android.os.Build;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -75,6 +69,7 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
 
     public interface ItemClickListener{
         void onItemClick(post_model_getPosts post_model_getPosts);
+
     }
 
 

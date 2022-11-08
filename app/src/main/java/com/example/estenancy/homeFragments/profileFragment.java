@@ -20,7 +20,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -34,7 +37,10 @@ import android.widget.Toast;
 
 import com.example.estenancy.Classes.my_listing;
 import com.example.estenancy.Classes.my_listing_get_post;
+import com.example.estenancy.Classes.post_model_getPosts;
+import com.example.estenancy.Classes.post_model_recyclerView;
 import com.example.estenancy.Home;
+import com.example.estenancy.Post;
 import com.example.estenancy.R;
 import com.example.estenancy.createPost;
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -85,8 +91,7 @@ public class profileFragment extends Fragment {
     //for my listing
     RecyclerView recyclerView;
     List<my_listing_get_post> myListing;
-
-
+    List<post_model_getPosts> array_getPosts;
 
     public profileFragment() {
         // Required empty public constructor
@@ -103,7 +108,6 @@ public class profileFragment extends Fragment {
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -115,7 +119,7 @@ public class profileFragment extends Fragment {
         editProfile = v.findViewById(R.id.btn_edit_profile);
         profilePhoto = v.findViewById(R.id.profile_photo);
         shimmerFrameLayout = v.findViewById(R.id.shimmer1);
-       // swipeRefreshLayout = v.findViewById(R.id.swipeRefreshLayout1);
+        // swipeRefreshLayout = v.findViewById(R.id.swipeRefreshLayout1);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -125,9 +129,9 @@ public class profileFragment extends Fragment {
         //my listing
         shimmerFrameLayout.startShimmer();
         myListing = new ArrayList<>();
+        array_getPosts = new ArrayList<>();
         recyclerView = v.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
 
         //method calls
         setNamePhoto();
@@ -135,27 +139,39 @@ public class profileFragment extends Fragment {
         editProfile();
         addPost();
         showMyListing();
-       // refreshFeed();
+        // refreshFeed();
+
         return v;
     }
 
     //start of my listing feed
 
-    public void refreshFeed(){
+    private void showPost(String id, String email) {
+        Post post = new Post();
+        Bundle bundle = new Bundle();
+        bundle.putString("id_from_card", id);
+        bundle.putString("email", email);
+        post.setArguments(bundle);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+        transaction.replace(R.id.mainLayout, post).addToBackStack("tag");
+        transaction.commit();
+    }
+
+
+    public void refreshFeed() {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(false);
                 profileFragment profileFragment = new profileFragment();
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.mainLayout,profileFragment);
+                transaction.replace(R.id.mainLayout, profileFragment);
                 transaction.commit();
             }
         });
     }
 
-    public void showMyListing(){
-
+    public void showMyListing() {
         db.collection("posts")
                 .whereEqualTo("email", firebaseUser.getEmail())
                 .get()
@@ -166,24 +182,34 @@ public class profileFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String title = document.getString("title_post");
                                 String id = document.getString("id");
+                                String email = document.getString("email");
                                 Timestamp timeStampFire = document.getTimestamp("timeStamp");
                                 Date date = timeStampFire.toDate();
-                                String timeStamp  = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date);
+                                String timeStamp = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date);
                                 //start of my thumbnail
-                                storageReference = FirebaseStorage.getInstance().getReference().child("posts/"+id+"/site_image_0");
-                                try{
-                                    final File localFile = File.createTempFile("site_image_0                                                                                           ", "jpg");
+                                storageReference = FirebaseStorage.getInstance().getReference().child("posts/" + id + "/site_image_0");
+                                try {
+                                    final File localFile = File.createTempFile("site_image_0", "jpg");
                                     storageReference.getFile(localFile)
                                             .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                                 @Override
                                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+
                                                     shimmerFrameLayout.stopShimmer();
                                                     shimmerFrameLayout.setVisibility(View.GONE);
                                                     Bitmap thumbnail = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                                    myListing.add(new my_listing_get_post(title,timeStamp, thumbnail));
+                                                    myListing.add(new my_listing_get_post(title, timeStamp, thumbnail, id, email));
                                                     storageReference = storage.getReference();
-                                                    my_listing my_listing = new my_listing(getContext(), myListing);
+
+                                                    my_listing my_listing = new my_listing(getContext(), myListing, new my_listing.ItemClickListener() {
+                                                        @Override
+                                                        public void onItemClick(my_listing_get_post my_listing_get_post) {
+                                                            showPost(my_listing_get_post.getId(), my_listing_get_post.getEmail());
+                                                        }
+                                                    });
+
                                                     recyclerView.setAdapter(my_listing);
+                                                    registerForContextMenu(recyclerView);
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
@@ -191,11 +217,10 @@ public class profileFragment extends Fragment {
                                                     storageReference = storage.getReference();
                                                 }
                                             });
-                                }catch (Exception e){
+                                } catch (Exception e) {
 
                                 }
                                 //end of my thumbnail;
-
                             }
                         } else {
 
@@ -203,15 +228,16 @@ public class profileFragment extends Fragment {
                     }
                 });
     }
-
     //end of my listing feed
 
-
-    public void addPost(){
+    public void addPost() {
         addListing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createPost createPost = new createPost();
+                Bundle bundle = new Bundle();
+                bundle.putString("label", "Create Post");
+                createPost.setArguments(bundle);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
                 transaction.replace(R.id.mainLayout, createPost).addToBackStack("tag");
                 transaction.commit();
@@ -219,7 +245,7 @@ public class profileFragment extends Fragment {
         });
     }
 
-    public void editProfile(){
+    public void editProfile() {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -254,35 +280,35 @@ public class profileFragment extends Fragment {
                                 AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
 
                                 final TextView f = new TextView(context);
-                                f.setPadding(15,0,0,-5);
+                                f.setPadding(15, 0, 0, -5);
                                 f.setText("\nFirst Name:");
                                 layout.addView(f);
                                 final EditText fname = new EditText(context);
                                 layout.addView(fname);
 
                                 final TextView l = new TextView(context);
-                                l.setPadding(15,0,0,-5);
+                                l.setPadding(15, 0, 0, -5);
                                 l.setText("\nLast Name:");
                                 layout.addView(l);
                                 final EditText lname = new EditText(context);
                                 layout.addView(lname);
 
                                 final TextView a = new TextView(context);
-                                a.setPadding(15,0,0,-5);
+                                a.setPadding(15, 0, 0, -5);
                                 a.setText("\nAge:");
                                 layout.addView(a);
                                 final EditText age = new EditText(context);
                                 layout.addView(age);
 
                                 final TextView g = new TextView(context);
-                                g.setPadding(15,0,0,0);
+                                g.setPadding(15, 0, 0, 0);
                                 g.setText("\nGender:");
                                 layout.addView(g);
                                 final Spinner gender = new Spinner(context);
                                 layout.addView(gender);
-                                gender.setPadding(0,0,0,50);
+                                gender.setPadding(0, 0, 0, 50);
 
-                                List<String> spinnerArray =  new ArrayList<String>();
+                                List<String> spinnerArray = new ArrayList<String>();
                                 spinnerArray.add("Male");
                                 spinnerArray.add("Female");
                                 spinnerArray.add("I'd rather not say");
@@ -310,14 +336,14 @@ public class profileFragment extends Fragment {
                                         .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
+                                                if (task.isSuccessful()) {
                                                     DocumentSnapshot documentSnapshot = task.getResult();
-                                                    if(documentSnapshot != null && documentSnapshot.exists()){
+                                                    if (documentSnapshot != null && documentSnapshot.exists()) {
                                                         fname.setText(documentSnapshot.getString("firstName"));
                                                         lname.setText(documentSnapshot.getString("lastName"));
                                                         age.setText(documentSnapshot.getString("age"));
 
-                                                        switch(documentSnapshot.getString("gender")){
+                                                        switch (documentSnapshot.getString("gender")) {
                                                             case "Male":
                                                                 gender.setSelection(0);
                                                                 break;
@@ -341,7 +367,7 @@ public class profileFragment extends Fragment {
 
                                         db.collection("users")
                                                 .document(mAuth.getCurrentUser().getEmail())
-                                                .update("firstName",fname.getText().toString(), "lastName", lname.getText().toString(),
+                                                .update("firstName", fname.getText().toString(), "lastName", lname.getText().toString(),
                                                         "age", age.getText().toString(), "gender", gender.getSelectedItem().toString())
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
@@ -379,49 +405,24 @@ public class profileFragment extends Fragment {
     }
 
     //make this clean
-    public void setProfilePhoto(){
+    public void setProfilePhoto() {
         profilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                final ProgressDialog pd = new ProgressDialog(getContext());
-                pd.setTitle("Viewing image...");
-                pd.show();
-
-                storageReference = FirebaseStorage.getInstance().getReference().child("profilePhoto/"+mAuth.getCurrentUser().getEmail());
-                try{
-                    final File localFile = File.createTempFile(mAuth.getCurrentUser().getEmail(), "jpg");
-                    storageReference.getFile(localFile)
-                            .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                    pd.dismiss();
-                                    Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                    builder.setTitle("Profile Photo");
-                                    ImageView image = new ImageView(getActivity());
-                                    image.setImageBitmap(bitmap);
-                                    builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            dialogInterface.dismiss();
-                                        }
-                                    });
-                                    builder.setView(image);
-                                    AlertDialog alertDialog = builder.create();
-                                    alertDialog.show();
-                                    alertDialog.getWindow().setLayout(1000, 1000);
-                                    storageReference = storage.getReference();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    storageReference = storage.getReference();
-                                }
-                            });
-                }catch (Exception e){
-                    pd.dismiss();
-                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Profile Photo");
+                ImageView image = new ImageView(getActivity());
+                image.setImageDrawable(profilePhoto.getDrawable());
+                builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setView(image);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+                alertDialog.getWindow().setLayout(1000, 1000);
             }
         });
     }
@@ -429,22 +430,23 @@ public class profileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==1 && resultCode==RESULT_OK){
-            if(data!=null){
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            if (data != null) {
                 cropImage(data.getData());
             }
         }
-        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK){
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             profilePhoto.setImageURI(result.getUri());
             uploadPicture(result.getUri());
         }
     }
+
     private void cropImage(Uri data) {
         CropImage.activity(data)
                 .setMultiTouchEnabled(true)
-                .setAspectRatio(1,1)
-                .setMaxCropResultSize(2500,2500)
+                .setAspectRatio(1, 1)
+                .setMaxCropResultSize(2500, 2500)
                 .setCropShape(CropImageView.CropShape.OVAL)
                 .setOutputCompressQuality(50)
                 .start(getContext(), this);
@@ -456,7 +458,7 @@ public class profileFragment extends Fragment {
         pd.setTitle("Uploading Image...");
         pd.show();
 
-        StorageReference sr = storageReference.child("profilePhoto/" +mAuth.getCurrentUser().getEmail());
+        StorageReference sr = storageReference.child("profilePhoto/" + mAuth.getCurrentUser().getEmail());
 
         sr.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -476,18 +478,18 @@ public class profileFragment extends Fragment {
             @Override
             public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
                 double progressPercent = (100.00 * snapshot.getBytesTransferred() / snapshot.getTotalByteCount());
-                pd.setMessage("Percentage: " +(int) + progressPercent + "%" );
+                pd.setMessage("Percentage: " + (int) +progressPercent + "%");
             }
         });
 
 
     }
 
-    public void setNamePhoto(){
+    public void setNamePhoto() {
         //set photo
 
-        storageReference = FirebaseStorage.getInstance().getReference().child("profilePhoto/"+mAuth.getCurrentUser().getEmail());
-        try{
+        storageReference = FirebaseStorage.getInstance().getReference().child("profilePhoto/" + mAuth.getCurrentUser().getEmail());
+        try {
             final File localFile = File.createTempFile(mAuth.getCurrentUser().getEmail(), "jpg");
             storageReference.getFile(localFile)
                     .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -503,28 +505,27 @@ public class profileFragment extends Fragment {
                             storageReference = storage.getReference();
                         }
                     });
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
 
         db.collection("users")
                 .document(mAuth.getCurrentUser().getEmail())
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if(documentSnapshot != null && documentSnapshot.exists()){
-                        name.setText(documentSnapshot.getString("firstName") +" "+ documentSnapshot.getString("lastName"));
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                name.setText(documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName"));
+                            }
+                        }
                     }
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
 
-            }
-        });
+                    }
+                });
     }
-
 }

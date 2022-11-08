@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg1"
-    tools:context=".homeFragments.profileFragment">
-
+    tools:context=".homeFragments.profileFragment"
+    android:id="@+id/id">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -86,7 +86,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="20dp"
-            android:nestedScrollingEnabled="false"/>
+            android:nestedScrollingEnabled="false"
+            android:clickable="true"
+            android:longClickable="true"/>
 
     </LinearLayout>
 
