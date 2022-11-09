@@ -49,6 +49,7 @@ import com.mapbox.mapboxsdk.plugins.places.picker.model.PlacePickerOptions;
 import com.mapbox.search.common.AsyncOperationTask;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -145,13 +146,16 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
                 bundle.putString("label", MapsFragment.this.getArguments().getString("label"));
                 bundle.putString("id", MapsFragment.this.getArguments().getString("id"));
+                bundle.putString("stat", MapsFragment.this.getArguments().getString("stat"));
                 bundle.putString("title", MapsFragment.this.getArguments().getString("title"));
                 bundle.putString("month", MapsFragment.this.getArguments().getString("month"));
                 bundle.putString("res", MapsFragment.this.getArguments().getString("res"));
                 bundle.putString("desc", MapsFragment.this.getArguments().getString("desc"));
                 bundle.putParcelableArrayList("photos", MapsFragment.this.getArguments().getParcelableArrayList("photos"));
+                bundle.putStringArrayList("appointments", MapsFragment.this.getArguments().getStringArrayList("appointments"));
                 bundle.putStringArrayList("names", MapsFragment.this.getArguments().getStringArrayList("names"));
-
+                bundle.putStringArrayList("uriId", MapsFragment.this.getArguments().getStringArrayList("uriId"));
+                bundle.putStringArrayList("removedId", MapsFragment.this.getArguments().getStringArrayList("removedId"));
 
                 createPost.setArguments(bundle);
 

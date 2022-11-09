@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.transition.TransitionManager;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +30,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
@@ -45,10 +50,13 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import proj.me.bitframe.BeanBitFrame;
@@ -80,7 +88,11 @@ public class Post extends Fragment {
     List<String> uriId;
     Button seeMore;
     GeoPoint latLng;
-
+    String[] items;
+    String appointment_name = "", appointment_date = "", viewAppoint = "";
+    boolean isBooked = false;
+    String title1 = "";
+    String addres1 = "";
 
     public Post() {
         // Required empty public constructor
@@ -114,6 +126,8 @@ public class Post extends Fragment {
         uriString = new ArrayList<>();
         uriNames = new ArrayList<>();
         uriId = new ArrayList<>();
+
+
         circleImageView = v.findViewById(R.id.profile);
         name = v.findViewById(R.id.name1);
         title = v.findViewById(R.id.title);
@@ -152,12 +166,313 @@ public class Post extends Fragment {
         //buttons
         navigate();
         setMsg();
-       // buttonsVisibility(v);
+        setBook();
+        // buttonsVisibility(v);
         return v;
     }
 
+    public void toasted(String m) {
+        Toast.makeText(getActivity(), String.valueOf(m),
+                Toast.LENGTH_SHORT).show();
+    }
 
-    public void setMsg(){
+    public void setBook() {
+
+        //getName of Current user
+        db.collection("users")
+                .document(mAuth.getCurrentUser().getEmail())
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                appointment_name = documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName");
+
+                            }
+                        }
+                    }
+                });
+
+
+        //get appointments
+        book.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //check if user already booked
+
+                db.collection("appointmentOnPost").document(id).collection("booked").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                        for (int y = 0; y < queryDocumentSnapshots.getDocuments().size(); y++) {
+                            try {
+                                if (appointment_name.equals(queryDocumentSnapshots.getDocuments().get(y).getData().get(mAuth.getCurrentUser().getEmail()).toString())) {
+                                    viewAppoint = queryDocumentSnapshots.getDocuments().get(y).getId();
+                                    isBooked = true;
+                                }
+                            } catch (Exception e) {
+
+                            }
+                        }
+
+                        if (isBooked) {
+                            viewAppointment();
+                            isBooked = false;
+                        } else {
+                            appoint();
+                        }
+                    }
+                });
+
+            }
+        });
+    }
+
+    public void removeAppointment() {
+        db.collection("appointmentOnPost")
+                .document(id)
+                .collection("booked")
+                .document(viewAppoint)
+                .update(mAuth.getCurrentUser().getEmail(), FieldValue.delete())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        toasted("asd");
+                    }
+                });
+    }
+
+    public void viewAppointment() {
+
+        //get title and address
+        db.collection("posts")
+                .document(id)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                title1 = documentSnapshot.getString("title_post");
+                                addres1 = documentSnapshot.getString("address");
+                            }
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Your Appointment is on");
+        builder.setMessage(viewAppoint);
+        builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).setNegativeButton("Add to calendar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent calIntent = new Intent(Intent.ACTION_INSERT);
+                calIntent.setData(CalendarContract.Events.CONTENT_URI);
+                calIntent.putExtra(CalendarContract.Events.TITLE, title1);
+                calIntent.putExtra(CalendarContract.Events.EVENT_LOCATION, addres1);
+                final Calendar startTime = Calendar.getInstance();
+                String myDate[] = viewAppoint.split(" ");
+                String myTime[] = myDate[4].split(":");
+                String removedDay = String.valueOf(myDate[1]).replace(",", "");
+                int month = 0;
+                switch (myDate[0]) {
+                    case "Jan":
+                        month = 0;
+                        break;
+                    case "Feb":
+                        month = 1;
+                        break;
+                    case "Mar":
+                        month = 2;
+                        break;
+                    case "Apr":
+                        month = 3;
+                        break;
+                    case "May":
+                        month = 4;
+                        break;
+                    case "Jun":
+                        month = 5;
+                        break;
+                    case "Jul":
+                        month = 6;
+                        break;
+                    case "Aug":
+                        month = 7;
+                        break;
+                    case "Sep":
+                        month = 8;
+                        break;
+                    case "Oct":
+                        month = 9;
+                        break;
+                    case "Nov":
+                        month = 10;
+                        break;
+                    case "Dec":
+                        month = 11;
+                        break;
+                }
+
+                int hr = Integer.parseInt(myTime[0]);
+
+                if(myDate[5].equals("pm")){
+                    switch (Integer.parseInt(myTime[0]))
+                    {
+                        case 1:
+                            hr = 13;
+                            break;
+                        case 2:
+                            hr = 14;
+                            break;
+                        case 3:
+                            hr = 15;
+                            break;
+                        case 4:
+                            hr = 16;
+                            break;
+                        case 5:
+                            hr = 17;
+                            break;
+                        case 6:
+                            hr = 18;
+                            break;
+                        case 7:
+                            hr = 19;
+                            break;
+                        case 8:
+                            hr = 20;
+                            break;
+                        case 9:
+                            hr = 21;
+                            break;
+                        case 10:
+                            hr = 22;
+                            break;
+                        case 11:
+                            hr = 23;
+                            break;
+                        case 12:
+                            hr = 24;
+                            break;
+                    }
+                }
+
+
+
+
+                int year = Integer.parseInt(myDate[2]);
+                int dayOfMonth = Integer.parseInt(removedDay);
+
+                int min = Integer.parseInt(myTime[1]);
+                startTime.set(year, month, dayOfMonth, hr,min);
+
+                calIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                        startTime.getTimeInMillis());
+                startActivity(calIntent);
+            }
+        }).setNeutralButton("Remove Appointment", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                removeAppointment();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void appoint() {
+        db.collection("appointmentOnPost")
+                .document(id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+
+                                items = new String[documentSnapshot.getData().size()];
+
+                                for (int x = 0; x < documentSnapshot.getData().size(); x++) {
+                                    items[x] = documentSnapshot.getString("appointment_" + x);
+                                }
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+
+                                alertDialog.setTitle("Choose an appointment");
+                                // alertDialog.setMessage("Here are the list of appointments");
+                                int checkedItem = 0;
+
+                                appointment_date = items[checkedItem];
+
+                                alertDialog.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        appointment_date = items[which];
+
+                                    }
+                                }).setPositiveButton("Book", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        //get full name
+                                        db.collection("users")
+                                                .document(mAuth.getCurrentUser().getEmail())
+                                                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            DocumentSnapshot documentSnapshot = task.getResult();
+                                                            if (documentSnapshot != null && documentSnapshot.exists()) {
+
+                                                                Map<String, Object> data = new HashMap<>();
+                                                                data.put(mAuth.getCurrentUser().getEmail(), documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName"));
+                                                                db.collection("appointmentOnPost")
+                                                                        .document(id)
+                                                                        .collection("booked")
+                                                                        .document(appointment_date)
+                                                                        .set(data, SetOptions.merge());
+
+                                                                Toast.makeText(getActivity(), "Booked successfully.",
+                                                                        Toast.LENGTH_SHORT).show();
+
+                                                                appointment_date = "";
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        appointment_date = "";
+                                    }
+                                });
+
+                                alertDialog.show();
+
+                            }
+                        } else {
+
+                        }
+                    }
+                });
+    }
+
+    public void setMsg() {
         msg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,7 +481,7 @@ public class Post extends Fragment {
         });
     }
 
-    public void setView_profile(){
+    public void setView_profile() {
         view_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,7 +505,7 @@ public class Post extends Fragment {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Navigation");
-                builder.setMessage(address_post.getText()+" \n\nDo you want to start the navigation?");
+                builder.setMessage(address_post.getText() + " \n\nDo you want to start the navigation?");
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -402,13 +717,13 @@ public class Post extends Fragment {
                 });
     }
 
-    public void buttonsVisibility(){
-        if(!email.equals(firebaseUser.getEmail())){
+    public void buttonsVisibility() {
+        if (!email.equals(firebaseUser.getEmail())) {
             msg.setVisibility(View.VISIBLE);
             book.setVisibility(View.VISIBLE);
             view_profile.setVisibility(View.VISIBLE);
             reservation_payment.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             msg.setVisibility(View.GONE);
             book.setVisibility(View.GONE);
             view_profile.setVisibility(View.GONE);

@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -119,7 +120,6 @@ public class ViewProfile extends Fragment {
 
     public void vp_setNamePhoto(){
         //set photo
-
         storageReference = FirebaseStorage.getInstance().getReference().child("profilePhoto/"+vp_email);
         try{
             final File localFile = File.createTempFile(mAuth.getCurrentUser().getEmail(), "jpg");

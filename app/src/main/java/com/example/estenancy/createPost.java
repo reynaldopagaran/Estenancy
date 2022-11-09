@@ -4,14 +4,18 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,14 +34,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.estenancy.Adapters.ImagesAdapter;
+import com.github.paolorotolo.expandableheightlistview.ExpandableHeightGridView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -49,6 +60,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
@@ -56,6 +69,8 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -66,12 +81,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import it.beppi.tristatetogglebutton_library.TriStateToggleButton;
 
 
 public class createPost extends Fragment {
@@ -79,6 +105,7 @@ public class createPost extends Fragment {
     EditText post_title, monthly_payment, reservation_fee, location, description;
     Button addPost;
     String address;
+    String stat = "Available";
     private CircleImageView profilePhotoPost;
     private StorageReference storageReference;
     private FirebaseAuth mAuth;
@@ -98,9 +125,16 @@ public class createPost extends Fragment {
     private List<String> uriNames;
     private List<String> uriId;
     private List<String> removedId;
+    private List<String> appointment;
     private ArrayList<Uri> uriPhotos;
+    TriStateToggleButton triStateToggleButton;
     String id;
-    File localFile;
+    ImageButton book;
+    ExpandableHeightGridView appointments;
+    SimpleDateFormat fmt = new SimpleDateFormat("MMM dd, yyyy 'at' h:mm a");
+
+
+
     public createPost() {
         // Required empty public constructor
     }
@@ -122,7 +156,6 @@ public class createPost extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_create_post, container, false);
 
-
         location = v.findViewById(R.id.geopoint_post);
         addPost = v.findViewById(R.id.btnAdd_post);
         profilePhotoPost = v.findViewById(R.id.profilePic_post);
@@ -136,6 +169,9 @@ public class createPost extends Fragment {
         categories = new ArrayList<>();
         imageClick = v.findViewById(R.id.imageClick);
         label = v.findViewById(R.id.textView4);
+        triStateToggleButton = v.findViewById(R.id.switch_avail);
+        book = v.findViewById(R.id.book);
+        appointments = v.findViewById(R.id.appointment_list);
 
         pd = new ProgressDialog(getContext());
 
@@ -150,13 +186,16 @@ public class createPost extends Fragment {
         uriNames = new ArrayList<>();
         uriId = new ArrayList<>();
         removedId = new ArrayList<>();
+        appointment = new ArrayList<>();
         //method calls
 
+        stat();
         openMaps();
         //LatLongBundle();
         loadProfilePhotoAndName();
         setAddPost();
-
+        openCalendar();
+        removeDate();
 
         if (createPost.this.getArguments().getString("address") == null) {
             editOrCreate();
@@ -175,8 +214,100 @@ public class createPost extends Fragment {
         return v;
     }
 
-
     //METHODS
+    public void openCalendar() {
+        final Calendar currentDate = Calendar.getInstance();
+        book.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                            new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                                @Override
+                                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+
+                                    currentDate.set(year, month, dayOfMonth, hourOfDay, minute);
+
+                                        appointment.add(fmt.format(currentDate.getTime()));
+
+                                        Set<String> set = new HashSet<>(appointment);
+                                        appointment.clear();
+                                        appointment.addAll(set);
+                                        appointments.setAdapter(null);
+
+                                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                                                getContext(),
+                                                android.R.layout.simple_list_item_1,
+                                                appointment);
+
+                                        appointments.setAdapter(arrayAdapter);
+                                        appointments.setExpanded(true);
+
+                                }
+                            }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+                        }
+                    }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+                }
+            }
+        });
+    }
+
+    public void removeDate(){
+        appointments.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Remove Appointment Date");
+                builder.setMessage("Are you sure to remove this appointment date?");
+
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        appointment.remove(position);
+                        appointments.setAdapter(null);
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                                getContext(),
+                                android.R.layout.simple_list_item_1,
+                                appointment);
+                        appointments.setAdapter(arrayAdapter);
+                        appointments.setExpanded(true);
+                        Toast.makeText(getContext(), "Removed.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                builder.show();
+                return true;
+            }
+        });
+    }
+
+
+    public void stat() {
+        triStateToggleButton.setOnToggleChanged(new TriStateToggleButton.OnToggleChanged() {
+            @Override
+            public void onToggle(TriStateToggleButton.ToggleStatus toggleStatus, boolean booleanToggleStatus, int toggleIntValue) {
+
+                switch (toggleStatus) {
+                    case off:
+                        stat = "Not Available";
+                        break;
+                    case on:
+                        stat = "Available";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
 
     public void setAddPost() {
         addPost.setOnClickListener(new View.OnClickListener() {
@@ -209,7 +340,21 @@ public class createPost extends Fragment {
             reservation_fee.setText(createPost.this.getArguments().getString("res"));
             description.setText(createPost.this.getArguments().getString("desc"));
             uriNames.addAll(createPost.this.getArguments().getStringArrayList("names"));
+            appointment.addAll(createPost.this.getArguments().getStringArrayList("appointments"));
+            uriId.addAll(createPost.this.getArguments().getStringArrayList("uriId"));
+            removedId.addAll(createPost.this.getArguments().getStringArrayList("removedId"));
             id = createPost.this.getArguments().getString("id");
+            stat = createPost.this.getArguments().getString("stat");
+
+
+            appointments.setAdapter(null);
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                    getContext(),
+                    android.R.layout.simple_list_item_1,
+                    appointment);
+            appointments.setAdapter(arrayAdapter);
+            appointments.setExpanded(true);
+
 
             ArrayList<Parcelable> uris =
                     createPost.this.getArguments().getParcelableArrayList("photos");
@@ -222,6 +367,13 @@ public class createPost extends Fragment {
                 addPost.setText("Edit");
             } else if (label.getText().toString().equals("Create Post")) {
                 addPost.setText("Add");
+            }
+
+            if (stat.equals("Available")) {
+                triStateToggleButton.setToggleOn();
+            } else if (stat.equals("Not Available")) {
+
+                triStateToggleButton.setToggleOff();
             }
 
         } catch (Exception e) {
@@ -254,6 +406,13 @@ public class createPost extends Fragment {
                                         monthly_payment.setText(documentSnapshot.getString("monthly_payment"));
                                         reservation_fee.setText(documentSnapshot.getString("reservation_fee"));
                                         description.setText(documentSnapshot.getString("description"));
+                                        stat = documentSnapshot.getString("status");
+
+                                        if (stat.equals("Available")) {
+                                            triStateToggleButton.setToggleOn();
+                                        } else if (stat.equals("Not Available")) {
+                                            triStateToggleButton.setToggleOff();
+                                        }
                                     }
                                 }
                             }
@@ -263,6 +422,38 @@ public class createPost extends Fragment {
 
                             }
                         });
+
+                //getAppointments
+                db.collection("appointmentOnPost")
+                        .document(id)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot documentSnapshot = task.getResult();
+                                    if (documentSnapshot != null && documentSnapshot.exists()) {
+
+                                        for(int x = 0; x <documentSnapshot.getData().size(); x++){
+                                            appointment.add(documentSnapshot.getString("appointment_"+x));
+                                        }
+
+                                        appointments.setAdapter(null);
+
+                                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                                                getContext(),
+                                                android.R.layout.simple_list_item_1,
+                                                appointment);
+
+                                        appointments.setAdapter(arrayAdapter);
+                                        appointments.setExpanded(true);
+                                    }
+                                } else {
+
+                                }
+                            }
+                        });
+
 
                 //get photos
                 db.collection("categories")
@@ -281,11 +472,11 @@ public class createPost extends Fragment {
                                                         for (StorageReference item : listResult.getItems()) {
                                                             item.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                                 @Override
-                                                                public void onSuccess(Uri uri){
-                                                                        uriPhotos.add(uri);
-                                                                        uriNames.add(documentSnapshot.getString(item.getName()));
-                                                                        uriId.add(item.getName());
-                                                                        setAdapter(uriPhotos, uriNames);
+                                                                public void onSuccess(Uri uri) {
+                                                                    uriPhotos.add(uri);
+                                                                    uriNames.add(documentSnapshot.getString(item.getName()));
+                                                                    uriId.add(item.getName());
+                                                                    setAdapter(uriPhotos, uriNames);
                                                                     //end of save uri to temp file
                                                                 }
                                                             });
@@ -296,7 +487,7 @@ public class createPost extends Fragment {
                                                     @Override
                                                     public void onFailure(@NonNull Exception e) {
                                                         Toast.makeText(getActivity(), e.toString(),
-                                                                Toast.LENGTH_LONG).show();
+                                                                Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
                                     }
@@ -313,8 +504,6 @@ public class createPost extends Fragment {
         }
 
     }
-
-
 
 
     public void disableTexts() {
@@ -358,8 +547,13 @@ public class createPost extends Fragment {
                         if (label.getText().toString().equals("Edit Post")) {
                             uriPhotos.add(data.getData());
                             uriNames.add(category.getText().toString());
-                            for(int a = 0; a < removedId.size(); a++){
-                                uriId.add(removedId.get(a));
+
+                            if (removedId.size() == 0) {
+                                uriId.add("site_image_" + String.valueOf(uriId.size() - 1));
+                            } else {
+                                for (int a = 0; a < removedId.size(); a++) {
+                                    uriId.add(removedId.get(a));
+                                }
                             }
                             imageCount++;
                             description.clearFocus();
@@ -420,6 +614,7 @@ public class createPost extends Fragment {
             Toast.makeText(getActivity(), "Site photos must be 5 and up.",
                     Toast.LENGTH_SHORT).show();
         } else {
+            stat();
             pd.setTitle("Updating...");
             pd.show();
             db.collection("posts")
@@ -429,7 +624,8 @@ public class createPost extends Fragment {
                             "monthly_payment", monthly_payment.getText().toString(),
                             "reservation_fee", reservation_fee.getText().toString(),
                             "coordinates", new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()),
-                            "description", description.getText().toString())
+                            "description", description.getText().toString(),
+                            "status", stat)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -443,6 +639,7 @@ public class createPost extends Fragment {
                         }
                     });
 
+            //photos and categories
             db.collection("categories").document(id).delete();
             Map<String, Object> cat = new HashMap<>();
             for (int i = 0; i < uriPhotos.size(); i++) {
@@ -450,11 +647,20 @@ public class createPost extends Fragment {
                 try {
                     editImage(uriPhotos.get(i), id, uriId.get(i));
                 } catch (Exception e) {
-                    Log.d("tag", "rez: "+e);
+                    Log.d("tag", "rez: " + e);
                 }
 
             }
             db.collection("categories").document(id).set(cat);
+
+            //appointments
+            db.collection("appointmentOnPost").document(id).delete();
+            Map<String, Object> appointments = new HashMap<>();
+            for (int i = 0; i < appointment.size(); i++) {
+                appointments.put("appointment_"+i, appointment.get(i));
+            }
+            db.collection("appointmentOnPost").document(id).set(appointments);
+
 
         }
 
@@ -481,9 +687,12 @@ public class createPost extends Fragment {
         } else if (imagesUri.size() < 5) {
             Toast.makeText(getActivity(), "Site photos must be 5 and up.",
                     Toast.LENGTH_SHORT).show();
+        } else if(appointment.size() == 0){
+            Toast.makeText(getActivity(), "Please add appointment.",
+                    Toast.LENGTH_SHORT).show();
         } else {
             //save data to firestore
-
+            stat();
             pd.setTitle("Posting...");
             pd.show();
 
@@ -497,7 +706,7 @@ public class createPost extends Fragment {
             post.put("description", description.getText().toString());
             post.put("coordinates", new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()));
             post.put("address", location.getText().toString());
-            post.put("status", "Available");
+            post.put("status", stat);
             post.put("timeStamp", FieldValue.serverTimestamp());
             db.collection("posts")
                     .add(post)
@@ -525,6 +734,16 @@ public class createPost extends Fragment {
                             }
                             db.collection("categories").document(documentReference.getId())
                                     .set(cat);
+
+                            Map<String, Object> date = new HashMap<>();
+
+                            for(int a = 0; a < appointment.size(); a++){
+                                date.put("appointment_"+a, appointment.get(a));
+                            }
+                            db.collection("appointmentOnPost")
+                                    .document(documentReference.getId())
+                                    .set(date);
+
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -532,6 +751,7 @@ public class createPost extends Fragment {
 
                         }
                     });
+
         }
 
 
@@ -574,31 +794,31 @@ public class createPost extends Fragment {
 
         sr.putFile(imageByts)
                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                count += 1;
-                if (count == uriPhotos.size()) {
-                    pd.dismiss();
-                    Toast.makeText(getActivity(), "Updated.",
-                            Toast.LENGTH_LONG).show();
-                    Home home = new Home();
-                    FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
-                    transaction.replace(R.id.mainLayout, home);
-                    transaction.commit();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        count += 1;
+                        if (count == uriPhotos.size()) {
+                            pd.dismiss();
+                            Toast.makeText(getActivity(), "Updated.",
+                                    Toast.LENGTH_LONG).show();
+                            Home home = new Home();
+                            FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                            transaction.replace(R.id.mainLayout, home);
+                            transaction.commit();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
 
-                Log.d("tag", "bug x= " + e.toString());
-            }
-        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                        Log.d("tag", "bug x= " + e.toString());
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
 
-            }
-        });
+                    }
+                });
     }
 
     public void loadProfilePhotoAndName() {
@@ -660,11 +880,21 @@ public class createPost extends Fragment {
                 outState.putString("id", id);
                 outState.putParcelableArrayList("photos", uriPhotos);
                 outState.putStringArrayList("names", (ArrayList<String>) uriNames);
+                outState.putStringArrayList("appointments", (ArrayList<String>) appointment);
+                outState.putStringArrayList("uriId", (ArrayList<String>) uriId);
+                outState.putStringArrayList("removedId", (ArrayList<String>) removedId);
                 if (label.getText().toString().equals("Edit Post")) {
                     outState.putString("label", "Edit Post");
                 } else if (label.getText().toString().equals("Create Post")) {
                     outState.putString("label", "Create Post");
                 }
+
+                if (stat.equals("Available")) {
+                    outState.putString("stat", "Available");
+                } else if (stat.equals("Not Available")) {
+                    outState.putString("stat", "Not Available");
+                }
+
                 mapsFragment.setArguments(outState);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
                 transaction.replace(R.id.mainLayout, mapsFragment).addToBackStack("tag");

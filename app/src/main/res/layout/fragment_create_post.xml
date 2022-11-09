@@ -45,6 +45,15 @@
                 android:textStyle="bold"
                 android:layout_marginLeft="10dp"/>
 
+            <it.beppi.tristatetogglebutton_library.TriStateToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/switch_avail"
+                app:tbIsMidSelectable="false"
+                app:tbOffColor="#bdbdbd"
+                app:tbDefaultStatus="on"
+                />
+
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -117,6 +126,35 @@
                 android:hint="Description"
                 android:layout_marginBottom="10dp"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="15dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="List of Appointment Dates"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/book"
+            android:background="@drawable/calendar"/>
+
+    </LinearLayout>
+
+        <com.github.paolorotolo.expandableheightlistview.ExpandableHeightGridView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/appointment_list"
+            android:background="@color/white_blur"
+            android:layout_marginBottom="20dp">
+        </com.github.paolorotolo.expandableheightlistview.ExpandableHeightGridView>
 
 
         <androidx.viewpager.widget.ViewPager
