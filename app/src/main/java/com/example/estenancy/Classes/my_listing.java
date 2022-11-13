@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,11 +22,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.estenancy.Appointments;
 import com.example.estenancy.R;
 import com.example.estenancy.createPost;
+import com.example.estenancy.currentBooking;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 
@@ -36,6 +41,8 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
     List<my_listing_get_post> my_listing_array;
     private ItemClickListener itemClickListener;
     private FirebaseFirestore db;
+    SharedPreferences sharedPreferences;
+    private static final String SHARED_PREF_NAME = "mypref";
 
     public my_listing(Context context, List<my_listing_get_post> my_listing_array, ItemClickListener itemClickListener) {
         this.context = context;
@@ -53,7 +60,7 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-
+        sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         db = FirebaseFirestore.getInstance();
         holder.myTitle.setText(my_listing_array.get(position).getMy_title());
         holder.timeStamp.setText(my_listing_array.get(position).getTimeStamp());
@@ -131,7 +138,22 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
                                         }
                                     })
                                     .show();
-                        } else {
+                        } else if(item.getItemId() == R.id.view_appointments){
+                            Appointments appointments = new Appointments();
+                            /*
+                            Bundle bundle = new Bundle();
+                            bundle.putString("id", my_listing_array.get(position).getId());
+                            appointments.setArguments(bundle);
+
+                             */
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("myId", my_listing_array.get(position).getId());
+                            editor.commit();
+
+                            FragmentTransaction fragmentTransaction = ((AppCompatActivity)context).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);;
+                            fragmentTransaction.replace(R.id.mainLayout, appointments).addToBackStack("tags");
+                            fragmentTransaction.commit();
+                        }else{
                             return false;
                         }
                         return true;

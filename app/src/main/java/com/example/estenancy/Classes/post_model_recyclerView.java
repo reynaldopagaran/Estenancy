@@ -1,5 +1,6 @@
 package com.example.estenancy.Classes;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -36,7 +37,7 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder,int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
         holder.title.setText(array_getPosts.get(position).getTitle());
         holder.stat.setText(array_getPosts.get(position).getStat());

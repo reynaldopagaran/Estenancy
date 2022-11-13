@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.provider.CalendarContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.core.ApiFuture;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,7 +38,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -44,6 +45,7 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
+import com.google.firestore.v1.WriteResult;
 
 
 import java.io.File;
@@ -188,7 +190,6 @@ public class Post extends Fragment {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot != null && documentSnapshot.exists()) {
                                 appointment_name = documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName");
-
                             }
                         }
                     }
@@ -207,7 +208,7 @@ public class Post extends Fragment {
 
                         for (int y = 0; y < queryDocumentSnapshots.getDocuments().size(); y++) {
                             try {
-                                if (appointment_name.equals(queryDocumentSnapshots.getDocuments().get(y).getData().get(mAuth.getCurrentUser().getEmail()).toString())) {
+                                if (appointment_name.equals(queryDocumentSnapshots.getDocuments().get(y).getData().get(mAuth.getCurrentUser().getEmail().replace("@gmail.com", "")))) {
                                     viewAppoint = queryDocumentSnapshots.getDocuments().get(y).getId();
                                     isBooked = true;
                                 }
@@ -224,27 +225,24 @@ public class Post extends Fragment {
                         }
                     }
                 });
-
             }
         });
     }
 
     public void removeAppointment() {
-        db.collection("appointmentOnPost")
+        DocumentReference docRef =    db.collection("appointmentOnPost")
                 .document(id)
                 .collection("booked")
-                .document(viewAppoint)
-                .update(mAuth.getCurrentUser().getEmail(), FieldValue.delete())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        toasted("asd");
-                    }
-                });
+                .document(viewAppoint);
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(mAuth.getCurrentUser().getEmail().replace("@gmail.com", ""), FieldValue.delete());
+
+        docRef.update(updates);
+
     }
 
     public void viewAppointment() {
-
         //get title and address
         db.collection("posts")
                 .document(id)
@@ -328,9 +326,8 @@ public class Post extends Fragment {
 
                 int hr = Integer.parseInt(myTime[0]);
 
-                if(myDate[5].equals("pm")){
-                    switch (Integer.parseInt(myTime[0]))
-                    {
+                if (myDate[5].equals("pm")) {
+                    switch (Integer.parseInt(myTime[0])) {
                         case 1:
                             hr = 13;
                             break;
@@ -370,14 +367,11 @@ public class Post extends Fragment {
                     }
                 }
 
-
-
-
                 int year = Integer.parseInt(myDate[2]);
                 int dayOfMonth = Integer.parseInt(removedDay);
 
                 int min = Integer.parseInt(myTime[1]);
-                startTime.set(year, month, dayOfMonth, hr,min);
+                startTime.set(year, month, dayOfMonth, hr, min);
 
                 calIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
                         startTime.getTimeInMillis());
@@ -394,6 +388,7 @@ public class Post extends Fragment {
     }
 
     public void appoint() {
+
         db.collection("appointmentOnPost")
                 .document(id)
                 .get()
@@ -438,8 +433,9 @@ public class Post extends Fragment {
                                                             DocumentSnapshot documentSnapshot = task.getResult();
                                                             if (documentSnapshot != null && documentSnapshot.exists()) {
 
+
                                                                 Map<String, Object> data = new HashMap<>();
-                                                                data.put(mAuth.getCurrentUser().getEmail(), documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName"));
+                                                                data.put(mAuth.getCurrentUser().getEmail().replace("@gmail.com", ""), documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName"));
                                                                 db.collection("appointmentOnPost")
                                                                         .document(id)
                                                                         .collection("booked")
