@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "946726695993",
+    "firebase_url": "https://estenancy-2eca5-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "estenancy-2eca5",
     "storage_bucket": "estenancy-2eca5.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "946726695993-0ath7h7f1manijsmdnbjddoreaehvhfd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.estenancy",
+            "certificate_hash": "6903c247c0c8d2020d3f348e39021d977d7cf360"
+          }
+        },
         {
           "client_id": "946726695993-78h3qun04an4ateql7inn5tmcut8p56v.apps.googleusercontent.com",
           "client_type": 3

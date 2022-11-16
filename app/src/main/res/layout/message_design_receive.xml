@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="6dp"
+    android:layout_margin="10dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:layout_gravity="left"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:background="#9fa6ab">
+
+        <TextView
+            android:id="@+id/textMessageR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World"
+
+            android:textColor="#ffffff"
+            android:layout_marginBottom="15dp"/>
+
+        <TextView
+            android:id="@+id/dateTimeR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="10-07-2022 10:30AM"
+            android:textColor="#ffffff"
+            />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.example.estenancy.Classes.Person;
 import com.example.estenancy.Classes.PersonClass;
+import com.example.estenancy.Classes.PersonClassForComplete;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -48,7 +49,7 @@ public class completedBooking extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageReference;
     TextView no_appointment_text;
-    PersonClass personClass;
+    PersonClassForComplete personClass;
 
     public completedBooking() {
         // Required empty public constructor
@@ -101,16 +102,16 @@ public class completedBooking extends Fragment {
         getAppoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myList();
+                myList(id, spinner.getSelectedItem().toString());
             }
         });
     }
 
-    public void myList() {
+    public void myList(String id, String spin) {
         db.collection("appointmentOnPost")
                 .document(id)
                 .collection("finished")
-                .document(spinner.getSelectedItem().toString())
+                .document(spin)
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -130,7 +131,7 @@ public class completedBooking extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Uri> task) {
                                                     names.add(new Person(task.getResult(), me.getValue().toString(), me.getKey().toString()));
-                                                    personClass = new PersonClass(getContext(), names, spinner, new PersonClass.ItemClickListener() {
+                                                    personClass = new PersonClassForComplete(getContext(), names, spinner, getAppoint, new PersonClass.ItemClickListener() {
                                                         @Override
                                                         public void onItemClick(Person Person) {
 

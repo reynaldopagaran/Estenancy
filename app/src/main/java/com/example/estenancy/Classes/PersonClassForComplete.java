@@ -42,7 +42,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class PersonClass extends RecyclerView.Adapter<PersonClass.ViewHolder> {
+public class PersonClassForComplete extends RecyclerView.Adapter<PersonClassForComplete.ViewHolder> {
 
     private Context mContext;
     private ArrayList<Person> names;
@@ -56,7 +56,7 @@ public class PersonClass extends RecyclerView.Adapter<PersonClass.ViewHolder> {
     SharedPreferences sharedPreferences;
     private static final String SHARED_PREF_NAME = "mypref";
 
-    public PersonClass(Context mContext, ArrayList<Person> names, Spinner date, Button getAppoint, PersonClass.ItemClickListener itemClickListener) {
+    public PersonClassForComplete(Context mContext, ArrayList<Person> names, Spinner date, Button getAppoint, PersonClass.ItemClickListener itemClickListener) {
         this.mContext = mContext;
         this.names = names;
         this.date = date;
@@ -94,7 +94,7 @@ public class PersonClass extends RecyclerView.Adapter<PersonClass.ViewHolder> {
 
                 PopupMenu popupMenu = new PopupMenu(mContext, v, Gravity.RIGHT);
                 MenuInflater inflater = popupMenu.getMenuInflater();
-                inflater.inflate(R.menu.appointment_menu, popupMenu.getMenu());
+                inflater.inflate(R.menu.menu_for_complete, popupMenu.getMenu());
                 popupMenu.show();
 
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -105,7 +105,7 @@ public class PersonClass extends RecyclerView.Adapter<PersonClass.ViewHolder> {
 
                             DocumentReference docRef =    db.collection("appointmentOnPost")
                                     .document(id)
-                                    .collection("booked")
+                                    .collection("finished")
                                     .document(date.getSelectedItem().toString());
 
                             Map<String, Object> updates = new HashMap<>();
@@ -114,33 +114,6 @@ public class PersonClass extends RecyclerView.Adapter<PersonClass.ViewHolder> {
                             docRef.update(updates);
 
                             Toast.makeText(mContext, "Appointment removed.", Toast.LENGTH_SHORT).show();
-                            getAppoint.performClick();
-
-                        } else if (item.getItemId() == R.id.finished_appointment) {
-
-                            //add to finished
-                            Map<String, Object> data = new HashMap<>();
-                            data.put(names.get(position).getEmail().replace("@gmail.com", ""), names.get(position).getName());
-                            db.collection("appointmentOnPost")
-                                    .document(id)
-                                    .collection("finished")
-                                    .document(date.getSelectedItem().toString())
-                                    .set(data, SetOptions.merge());
-
-                            //remove from booked
-                            DocumentReference docRef = db.collection("appointmentOnPost")
-                                    .document(id)
-                                    .collection("booked")
-                                    .document(date.getSelectedItem().toString());
-
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put(names.get(position).getEmail().replace("@gmail.com", ""), FieldValue.delete());
-                            docRef.update(updates);
-
-
-
-                            Toast.makeText(mContext, "Moved to finished",
-                                    Toast.LENGTH_SHORT).show();
                             getAppoint.performClick();
 
                         } else if (item.getItemId() == R.id.view_profilex) {

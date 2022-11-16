@@ -10,6 +10,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.estenancy.R;
@@ -89,7 +91,6 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
             title = itemView.findViewById(R.id.title_card);
             thumbnail = itemView.findViewById(R.id.thumbnail);
             descr = itemView.findViewById(R.id.desc_post);
-
 
             //remove comment on method call if you want animation on cards
             //animation(itemView);

@@ -215,6 +215,7 @@ public class profileFragment extends Fragment {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
                                                     storageReference = storage.getReference();
+                                                    shimmerFrameLayout.stopShimmer();
                                                 }
                                             });
                                 } catch (Exception e) {
@@ -225,6 +226,11 @@ public class profileFragment extends Fragment {
                         } else {
 
                         }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        shimmerFrameLayout.stopShimmer();
                     }
                 });
     }

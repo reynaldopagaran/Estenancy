@@ -146,6 +146,7 @@ public class MapsFragment extends Fragment implements PermissionsListener {
 
                 bundle.putString("label", MapsFragment.this.getArguments().getString("label"));
                 bundle.putString("id", MapsFragment.this.getArguments().getString("id"));
+                bundle.putInt("nob", MapsFragment.this.getArguments().getInt("nob"));
                 bundle.putString("stat", MapsFragment.this.getArguments().getString("stat"));
                 bundle.putString("title", MapsFragment.this.getArguments().getString("title"));
                 bundle.putString("month", MapsFragment.this.getArguments().getString("month"));

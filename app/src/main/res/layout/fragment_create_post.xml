@@ -10,49 +10,48 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_margin="20dp"
         android:gravity="center"
-        android:layout_margin="20dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
             android:text="Create Post"
             android:textSize="20dp"
-            android:textStyle="bold"
-            android:layout_marginBottom="15dp"/>
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_marginBottom="15dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="15dp">
+            android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profilePic_post"
                 android:layout_width="50dp"
-                android:layout_height="50dp"/>
+                android:layout_height="50dp" />
 
             <TextView
                 android:id="@+id/profileName_post"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
                 android:text="--"
                 android:textSize="18dp"
-                android:layout_weight="1"
-                android:textStyle="bold"
-                android:layout_marginLeft="10dp"/>
+                android:textStyle="bold" />
 
             <it.beppi.tristatetogglebutton_library.TriStateToggleButton
+                android:id="@+id/switch_avail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/switch_avail"
-                app:tbIsMidSelectable="false"
-                app:tbOffColor="#bdbdbd"
                 app:tbDefaultStatus="on"
-                />
+                app:tbIsMidSelectable="false"
+                app:tbOffColor="#bdbdbd" />
 
         </LinearLayout>
 
@@ -123,59 +122,74 @@
                 android:id="@+id/description_post"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Description"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="10dp"
+                android:hint="Description" />
         </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="15dp">
-
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Maximum number of bookings per date" />
+
+        <com.shawnlin.numberpicker.NumberPicker
+            android:id="@+id/numberPick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="List of Appointment Dates"
-            android:layout_weight="1"/>
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="15dp"
+            app:np_max="10"
+            app:np_min="1"
+            app:np_orientation="horizontal"
+            app:np_value="5" />
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/book"
-            android:background="@drawable/calendar"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="15dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="List of Appointment Dates" />
+
+            <ImageButton
+                android:id="@+id/book"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/calendar" />
+
+        </LinearLayout>
 
         <com.github.paolorotolo.expandableheightlistview.ExpandableHeightGridView
+            android:id="@+id/appointment_list"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/appointment_list"
-            android:background="@color/white_blur"
-            android:layout_marginBottom="20dp">
-        </com.github.paolorotolo.expandableheightlistview.ExpandableHeightGridView>
+            android:layout_marginBottom="20dp"
+            android:background="@color/white_blur"></com.github.paolorotolo.expandableheightlistview.ExpandableHeightGridView>
 
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/imagePost"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:clickable="true"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="20dp"
+            android:clickable="true" />
 
         <ImageView
             android:id="@+id/imageClick"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/plus"/>
+            android:src="@drawable/plus" />
 
         <Button
             android:id="@+id/btnAdd_post"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add Post"
-            android:layout_marginBottom="30dp"/>
+            android:layout_marginBottom="30dp"
+            android:text="Add Post" />
 
     </LinearLayout>
 

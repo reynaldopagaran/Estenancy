@@ -16,23 +16,22 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.provider.CalendarContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.estenancy.Chat.chat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.core.ApiFuture;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -45,7 +44,6 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
-import com.google.firestore.v1.WriteResult;
 
 
 import java.io.File;
@@ -90,11 +88,18 @@ public class Post extends Fragment {
     List<String> uriId;
     Button seeMore;
     GeoPoint latLng;
-    String[] items;
     String appointment_name = "", appointment_date = "", viewAppoint = "";
     boolean isBooked = false;
     String title1 = "";
     String addres1 = "";
+    ArrayList<String> datesBooked;
+    ArrayList<String> slots;
+    ArrayList<String> items;
+    String chosenDate;
+    int checkedItem = 0;
+    int limit=0;
+    String[] items1;
+
 
     public Post() {
         // Required empty public constructor
@@ -128,6 +133,9 @@ public class Post extends Fragment {
         uriString = new ArrayList<>();
         uriNames = new ArrayList<>();
         uriId = new ArrayList<>();
+        datesBooked = new ArrayList<>();
+        slots = new ArrayList<>();
+        items = new ArrayList<>();
 
 
         circleImageView = v.findViewById(R.id.profile);
@@ -169,9 +177,41 @@ public class Post extends Fragment {
         navigate();
         setMsg();
         setBook();
+        gotoChat();
         // buttonsVisibility(v);
+        setReservation_payment();
         return v;
     }
+
+    public void setReservation_payment(){
+        reservation_payment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "https://m.gcash.com/gcashapp/gcash-promotion-web/2.0.0/index.html#";
+                Intent i = new Intent();
+                i.setPackage("com.android.chrome");
+                i.setAction(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        });
+    }
+
+    public void gotoChat(){
+        msg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chat chat = new chat();
+                Bundle bundle = new Bundle();
+                bundle.putString("email", email.replace("@gmail.com", ""));
+                chat.setArguments(bundle);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);;
+                transaction.replace(R.id.mainLayout, chat).addToBackStack("tag");
+                transaction.commit();
+            }
+        });
+    }
+
 
     public void toasted(String m) {
         Toast.makeText(getActivity(), String.valueOf(m),
@@ -195,7 +235,6 @@ public class Post extends Fragment {
                     }
                 });
 
-
         //get appointments
         book.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,8 +244,11 @@ public class Post extends Fragment {
                 db.collection("appointmentOnPost").document(id).collection("booked").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
+                        slots.clear();
+                        datesBooked.clear();
                         for (int y = 0; y < queryDocumentSnapshots.getDocuments().size(); y++) {
+                            datesBooked.add(queryDocumentSnapshots.getDocuments().get(y).getId());
+                            slots.add(String.valueOf(queryDocumentSnapshots.getDocuments().get(y).getData().size()));
                             try {
                                 if (appointment_name.equals(queryDocumentSnapshots.getDocuments().get(y).getData().get(mAuth.getCurrentUser().getEmail().replace("@gmail.com", "")))) {
                                     viewAppoint = queryDocumentSnapshots.getDocuments().get(y).getId();
@@ -215,12 +257,15 @@ public class Post extends Fragment {
                             } catch (Exception e) {
 
                             }
+
                         }
 
                         if (isBooked) {
+
                             viewAppointment();
                             isBooked = false;
                         } else {
+
                             appoint();
                         }
                     }
@@ -387,37 +432,63 @@ public class Post extends Fragment {
         builder.show();
     }
 
+
     public void appoint() {
 
+        items.clear();
         db.collection("appointmentOnPost")
                 .document(id)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        int count = 0;
                         if (task.isSuccessful()) {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot != null && documentSnapshot.exists()) {
 
-                                items = new String[documentSnapshot.getData().size()];
-
                                 for (int x = 0; x < documentSnapshot.getData().size(); x++) {
-                                    items[x] = documentSnapshot.getString("appointment_" + x);
+                                  items.add(documentSnapshot.getString("appointment_" + x)+"("+count+")");
                                 }
+
+                                for(int b = 0; b < datesBooked.size(); b++){
+                                    for(int c =0; c < documentSnapshot.getData().size(); c++){
+                                        if((datesBooked.get(b)+"(0)").equals(items.get(c))){
+                                            items.set(c, documentSnapshot.getString("appointment_" + c)+"("+slots.get(b)+")");
+                                        }
+                                    }
+                                }
+
                                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-
-                                alertDialog.setTitle("Choose an appointment");
+                                alertDialog.setTitle("Appointments List  (Limit: "+limit+")");
                                 // alertDialog.setMessage("Here are the list of appointments");
-                                int checkedItem = 0;
 
-                                appointment_date = items[checkedItem];
+                                for(int u = 0; u < items.size(); u++){
+                                    chosenDate = items.get(u);
+                                    chosenDate = chosenDate.substring(chosenDate.lastIndexOf("(")+1);
+                                    chosenDate = chosenDate.replace(")", "");
+                                    int num = Integer.parseInt(chosenDate);
 
-                                alertDialog.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
+                                    if(num >= limit){
+                                        items.remove(u);
+                                    }
+                                }
+
+
+
+                                appointment_date = items.get(checkedItem);
+
+                                items1 = new String[items.size()];
+
+                                for(int v =0; v < items.size(); v++){
+                                    items1[v] = items.get(v);
+                                }
+
+                                appointment_date = items.get(0).substring(0, items.get(0).indexOf("("));
+                                alertDialog.setSingleChoiceItems(items1, checkedItem, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-
-                                        appointment_date = items[which];
-
+                                        appointment_date = items.get(which).substring(0, items.get(which).indexOf("("));
                                     }
                                 }).setPositiveButton("Book", new DialogInterface.OnClickListener() {
                                     @Override
@@ -459,6 +530,7 @@ public class Post extends Fragment {
                                 });
 
                                 alertDialog.show();
+
 
                             }
                         } else {
@@ -701,6 +773,7 @@ public class Post extends Fragment {
                                 r.setText("Reservation Fee: " + pesoFormat.format(Integer.parseInt(document.getString("reservation_fee"))));
                                 address_post.setText("Address: " + document.getString("address"));
                                 desc.setText(document.getString("description"));
+                                limit = Integer.parseInt(document.getString("nob"));
                                 Timestamp timeStampFire = document.getTimestamp("timeStamp");
                                 Date date = timeStampFire.toDate();
                                 String timeStamp = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date);

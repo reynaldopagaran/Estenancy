@@ -69,6 +69,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.shawnlin.numberpicker.NumberPicker;
 
 import org.checkerframework.checker.units.qual.C;
 
@@ -126,14 +127,15 @@ public class createPost extends Fragment {
     private List<String> uriId;
     private List<String> removedId;
     private List<String> appointment;
+    private List<String> removedAppointment;
+    private List<String> addedAppointment;
     private ArrayList<Uri> uriPhotos;
     TriStateToggleButton triStateToggleButton;
     String id;
     ImageButton book;
     ExpandableHeightGridView appointments;
     SimpleDateFormat fmt = new SimpleDateFormat("MMM dd, yyyy 'at' h:mm a");
-
-
+    NumberPicker numberPicker;
 
     public createPost() {
         // Required empty public constructor
@@ -172,6 +174,7 @@ public class createPost extends Fragment {
         triStateToggleButton = v.findViewById(R.id.switch_avail);
         book = v.findViewById(R.id.book);
         appointments = v.findViewById(R.id.appointment_list);
+        numberPicker = v.findViewById(R.id.numberPick);
 
         pd = new ProgressDialog(getContext());
 
@@ -187,6 +190,8 @@ public class createPost extends Fragment {
         uriId = new ArrayList<>();
         removedId = new ArrayList<>();
         appointment = new ArrayList<>();
+        removedAppointment = new ArrayList<>();
+        addedAppointment = new ArrayList<>();
         //method calls
 
         stat();
@@ -266,6 +271,7 @@ public class createPost extends Fragment {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        removedAppointment.add(appointment.get(position));
                         appointment.remove(position);
                         appointments.setAdapter(null);
                         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
@@ -345,6 +351,7 @@ public class createPost extends Fragment {
             removedId.addAll(createPost.this.getArguments().getStringArrayList("removedId"));
             id = createPost.this.getArguments().getString("id");
             stat = createPost.this.getArguments().getString("stat");
+            numberPicker.setValue(createPost.this.getArguments().getInt("nob"));
 
 
             appointments.setAdapter(null);
@@ -407,6 +414,7 @@ public class createPost extends Fragment {
                                         reservation_fee.setText(documentSnapshot.getString("reservation_fee"));
                                         description.setText(documentSnapshot.getString("description"));
                                         stat = documentSnapshot.getString("status");
+                                        numberPicker.setValue(Integer.parseInt(documentSnapshot.getString("nob")));
 
                                         if (stat.equals("Available")) {
                                             triStateToggleButton.setToggleOn();
@@ -625,7 +633,8 @@ public class createPost extends Fragment {
                             "reservation_fee", reservation_fee.getText().toString(),
                             "coordinates", new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()),
                             "description", description.getText().toString(),
-                            "status", stat)
+                            "status", stat,
+                            "nob", String.valueOf(numberPicker.getValue()))
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -658,10 +667,23 @@ public class createPost extends Fragment {
             Map<String, Object> appointments = new HashMap<>();
             for (int i = 0; i < appointment.size(); i++) {
                 appointments.put("appointment_"+i, appointment.get(i));
+
+                for(int x = 0; x < removedAppointment.size(); x++){
+                    if(appointment.get(i).equals(removedAppointment.get(x))){
+                        removedAppointment.remove(x);
+                    }
+                }
             }
+
             db.collection("appointmentOnPost").document(id).set(appointments);
 
-
+            for(int y = 0; y < removedAppointment.size(); y++){
+                db.collection("appointmentOnPost")
+                        .document(id)
+                        .collection("booked")
+                        .document(removedAppointment.get(y))
+                        .delete();
+            }
         }
 
     }
@@ -708,6 +730,7 @@ public class createPost extends Fragment {
             post.put("address", location.getText().toString());
             post.put("status", stat);
             post.put("timeStamp", FieldValue.serverTimestamp());
+            post.put("nob", String.valueOf(numberPicker.getValue()));
             db.collection("posts")
                     .add(post)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -878,6 +901,7 @@ public class createPost extends Fragment {
                 outState.putString("res", reservation_fee.getText().toString());
                 outState.putString("desc", description.getText().toString());
                 outState.putString("id", id);
+                outState.putInt("nob", numberPicker.getValue());
                 outState.putParcelableArrayList("photos", uriPhotos);
                 outState.putStringArrayList("names", (ArrayList<String>) uriNames);
                 outState.putStringArrayList("appointments", (ArrayList<String>) appointment);
@@ -905,7 +929,7 @@ public class createPost extends Fragment {
     }
 
     public void setAdapter(ArrayList<Uri> uriPhotos, List<String> uriNames) {
-        ImagesAdapter imagesAdapter = new ImagesAdapter(getContext(), uriPhotos, uriNames, imagePost, id, uriId, removedId);
+        ImagesAdapter imagesAdapter = new ImagesAdapter(getContext(), label.getText().toString(), uriPhotos, uriNames, imagePost, id, uriId, removedId);
         imagePost.setAdapter(imagesAdapter);
     }
 

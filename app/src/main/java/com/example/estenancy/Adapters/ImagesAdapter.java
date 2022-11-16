@@ -54,9 +54,10 @@ public class ImagesAdapter extends PagerAdapter {
     private StorageReference storageReference;
     private FirebaseStorage storage;
     String id;
+    String title;
 
 
-    public ImagesAdapter(Context context, ArrayList<Uri> imageUris, List<String> categories, ViewPager viewPager, String id, List<String> uriId, List<String> removedId) {
+    public ImagesAdapter(Context context, String title, ArrayList<Uri> imageUris, List<String> categories, ViewPager viewPager, String id, List<String> uriId, List<String> removedId) {
         this.context = context;
         this.imageUris = imageUris;
         this.categories = categories;
@@ -64,6 +65,7 @@ public class ImagesAdapter extends PagerAdapter {
         this.id = id;
         this.uriId = uriId;
         this.removedId = removedId;
+        this.title = title;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -104,8 +106,11 @@ public class ImagesAdapter extends PagerAdapter {
 
                         imageUris.remove(position);
                         categories.remove(position);
-                        removedId.add(uriId.get(position));
-                        uriId.remove(position);
+
+                        if(title.equals("Edit Post")){
+                            removedId.add(uriId.get(position));
+                            uriId.remove(position);
+                        }
                         Toast.makeText(context, "Removed.",
                                 Toast.LENGTH_SHORT).show();
 

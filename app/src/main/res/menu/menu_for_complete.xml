@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="Remove Appointment"
+        android:id="@+id/remove_appointment"/>
+    <item
+        android:title="View Profile"
+        android:id="@+id/view_profilex"/>
+    <item
+        android:title="Message"
+        android:id="@+id/messagex"/>
+</menu>

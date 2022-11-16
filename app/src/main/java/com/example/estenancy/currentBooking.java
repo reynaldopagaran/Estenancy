@@ -49,7 +49,7 @@ public class currentBooking extends Fragment {
     private FirebaseFirestore db;
     ArrayList<String> dates;
     ArrayList<Person> names;
-    Button getAppoint;
+    public Button getAppoint;
     SharedPreferences sharedPreferences;
     private static final String SHARED_PREF_NAME = "mypref";
     private FirebaseStorage storage;
@@ -110,16 +110,16 @@ public class currentBooking extends Fragment {
         getAppoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myList();
+                myList(id , spinner.getSelectedItem().toString());
             }
         });
     }
 
-    public void myList() {
+    public void myList(String id, String spin) {
         db.collection("appointmentOnPost")
                 .document(id)
                 .collection("booked")
-                .document(spinner.getSelectedItem().toString())
+                .document(spin)
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -141,14 +141,14 @@ public class currentBooking extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Uri> task) {
                                                     names.add(new Person(task.getResult(), me.getValue().toString(), me.getKey().toString()));
-                                                    personClass = new PersonClass(getContext(), names, spinner, new PersonClass.ItemClickListener() {
+                                                    personClass = new PersonClass(getContext(), names, spinner, getAppoint, new PersonClass.ItemClickListener() {
                                                         @Override
                                                         public void onItemClick(Person Person) {
 
                                                         }
                                                     });
                                                     list.setAdapter(personClass);
-                                                    iterator.remove();
+
                                                 }
                                             });
 
