@@ -171,6 +171,28 @@
             android:background="@color/white_blur"></com.github.paolorotolo.expandableheightlistview.ExpandableHeightGridView>
 
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="15dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Upload Pictures" />
+
+            <ImageView
+                android:id="@+id/imageClick"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/plus" />
+
+        </LinearLayout>
+
+
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/imagePost"
             android:layout_width="match_parent"
@@ -178,20 +200,12 @@
             android:layout_marginBottom="20dp"
             android:clickable="true" />
 
-        <ImageView
-            android:id="@+id/imageClick"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/plus" />
-
         <Button
             android:id="@+id/btnAdd_post"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
-            android:text="Add Post" />
+            android:text="Create Listing" />
 
     </LinearLayout>
-
-
 </ScrollView>

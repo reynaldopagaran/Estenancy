@@ -371,9 +371,9 @@ public class createPost extends Fragment {
             }
 
             if (label.getText().toString().equals("Edit Post")) {
-                addPost.setText("Edit");
+                addPost.setText("Edit Listing");
             } else if (label.getText().toString().equals("Create Post")) {
-                addPost.setText("Add");
+                addPost.setText("Create Listing");
             }
 
             if (stat.equals("Available")) {
@@ -505,7 +505,7 @@ public class createPost extends Fragment {
 
             } else if (createPost.this.getArguments().getString("label").equals("Create Post")) {
                 label.setText("Create Post");
-                addPost.setText("Add");
+                addPost.setText("Create Listing");
             }
         } catch (Exception e) {
 

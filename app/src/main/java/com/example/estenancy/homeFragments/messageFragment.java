@@ -1,5 +1,8 @@
 package com.example.estenancy.homeFragments;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -8,6 +11,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -66,12 +71,17 @@ public class messageFragment extends Fragment {
     private FirebaseFirestore dbf;
     private FirebaseAuth mAuth;
     TextView no_msg;
+    int notifCounter = 1;
     private FirebaseStorage storage;
     private StorageReference storageReference;
     ArrayList<MessageList> messageLists;
     int counter;
     ShimmerFrameLayout shimmerFrameLayout;
     MessageAdapterForPerson messageAdapterForPerson;
+   // NotificationManagerCompat notificationCompat;
+    //Notification notification;
+
+    int count1 = 0;
 
     FirebaseDatabase database = FirebaseDatabase.getInstance("https://estenancy-2eca5-default-rtdb.asia-southeast1.firebasedatabase.app/");
     DatabaseReference db = database.getReference("chats");
@@ -114,6 +124,29 @@ public class messageFragment extends Fragment {
         return v;
     }
 
+    public void pushNotif(String message) {
+        /*
+        notifCounter++;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("myCh", "My Channel", NotificationManager.IMPORTANCE_DEFAULT);
+
+            NotificationManager manager = getActivity().getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), "myCh")
+                .setSmallIcon(R.drawable.logo)
+                .setContentTitle("Estenancy")
+                .setContentText(message);
+
+       // notification = builder.build();
+        //notificationCompat = NotificationManagerCompat.from(getContext());
+
+        //notificationCompat.notify(notifCounter, notification);
+
+         */
+    }
+
 
     public void gotoChat(String email) {
         counter = 0;
@@ -136,6 +169,7 @@ public class messageFragment extends Fragment {
                             no_msg.setVisibility(View.GONE);
                             messagesRecyclerView.setVisibility(View.VISIBLE);
                             for (DataSnapshot ds : snapshot.getChildren()) {
+
                                 String email = ds.getKey() + "@gmail.com";
                                 //get last message.
                                 db.child(my_email)
@@ -192,6 +226,7 @@ public class messageFragment extends Fragment {
                                                             }
                                                         });
                                             }
+
                                             @Override
                                             public void onCancelled(@NonNull DatabaseError error) {
 

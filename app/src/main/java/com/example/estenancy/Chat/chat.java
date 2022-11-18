@@ -1,9 +1,14 @@
 package com.example.estenancy.Chat;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,7 +27,6 @@ import com.bumptech.glide.Glide;
 import com.example.estenancy.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -36,7 +39,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -68,7 +70,9 @@ public class chat extends Fragment {
     List<chatClass> chat;
     chatAdapter chatAdapter;
 
-    int unread_me=0, unread_them=0;
+    int notifCounter = 0;
+
+    int unread_me = 0, unread_them = 0;
 
     public chat() {
         // Required empty public constructor
@@ -109,6 +113,10 @@ public class chat extends Fragment {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
+
+        //Notif
+
+
         //method calls
         chatSend();
         getNames();
@@ -116,6 +124,7 @@ public class chat extends Fragment {
         processChatBubbles();
         return v;
     }
+
 
     public void processChatBubbles() {
 
@@ -211,7 +220,7 @@ public class chat extends Fragment {
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                                     if (snapshot.exists()) {
-                                        count = (int) snapshot.getChildrenCount()+1;
+                                        count = (int) snapshot.getChildrenCount() + 1;
                                         thisChat();
                                     } else {
                                         count = 1;
@@ -261,8 +270,14 @@ public class chat extends Fragment {
                 .child(String.valueOf(count))
                 .setValue(myMessage1);
 
-                message.setText("");
 
+
+
+        message.setText("");
 
     }
+
+
+
+
 }

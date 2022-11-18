@@ -1,138 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg1"
-    tools:context=".MapsFragment">
+    tools:context=".MapsFragment"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+  >
 
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mapView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline80"
-        app:layout_constraintEnd_toStartOf="@+id/guideline78"
-        app:layout_constraintStart_toStartOf="@+id/guideline79"
-        app:layout_constraintTop_toTopOf="@+id/guideline77" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline77"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="100dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline78"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="20dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline79"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="20dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline80"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="550dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline81"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="613dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline82"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="770dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline83"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="100dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline84"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="100dp" />
-
-    <Button
-        android:id="@+id/btn_done"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Done"
-        app:layout_constraintBottom_toTopOf="@+id/guideline81"
-        app:layout_constraintEnd_toStartOf="@+id/guideline84"
-        app:layout_constraintStart_toStartOf="@+id/guideline83"
-        app:layout_constraintTop_toBottomOf="@+id/mapView" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline85"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="60dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline86"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="90dp" />
-
-    <TextView
-        android:id="@+id/search"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
-        android:text="Click here to search location"
-        android:textSize="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline86"
-        app:layout_constraintEnd_toStartOf="@+id/guideline78"
-        app:layout_constraintStart_toStartOf="@+id/guideline79"
-        app:layout_constraintTop_toTopOf="@+id/guideline85" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline92"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="50dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline93"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="20dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <TextView
         android:id="@+id/currentLoc"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="This is your current location."
         android:textStyle="bold"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/guideline92"
-        app:layout_constraintEnd_toStartOf="@+id/guideline78"
-        app:layout_constraintStart_toStartOf="@+id/guideline79"
-        app:layout_constraintTop_toTopOf="@+id/guideline93" />
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Click here to search location"
+        android:textSize="15dp"
+        android:layout_marginBottom="20dp"/>
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/btn_done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:text="Done" />
+    </LinearLayout>
+</ScrollView>
