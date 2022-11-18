@@ -1,6 +1,9 @@
 package com.example.estenancy;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -69,7 +72,7 @@ import proj.me.bitframe.helper.FrameType;
 public class Post extends Fragment {
 
     CircleImageView circleImageView;
-    TextView name, title, time, desc, m, r, address_post, status;
+    TextView name, title, time, desc, m, r, address_post, status, gcashname, gcashnum;
     Button msg, book, nav, view_profile, reservation_payment;
     String id, email;
     private StorageReference storageReference;
@@ -149,6 +152,8 @@ public class Post extends Fragment {
         address_post = v.findViewById(R.id.address_post);
         status = v.findViewById(R.id.status);
         seeMore = v.findViewById(R.id.seeMore);
+        gcashname = v.findViewById(R.id.gcashName);
+        gcashnum = v.findViewById(R.id.gcashNumber);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             desc.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
@@ -187,13 +192,24 @@ public class Post extends Fragment {
         reservation_payment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //copy gcash number
+                ClipboardManager clipboardManager = (ClipboardManager)
+                      getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clipData = ClipData.newPlainText("gcash number",
+                        gcashnum.getText().toString().replace("GCash Number: ", ""));
+                clipboardManager.setPrimaryClip(clipData);
+
+
                 String url = "https://m.gcash.com/gcashapp/gcash-promotion-web/2.0.0/index.html#";
                 Intent i = new Intent();
                 i.setPackage("com.android.chrome");
                 i.setAction(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
-            }
+
+                Toast.makeText(getContext(), "GCash number copied. Paste it in the payment form", Toast.LENGTH_LONG).show();
+        }
         });
     }
 
@@ -705,6 +721,8 @@ public class Post extends Fragment {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot != null && documentSnapshot.exists()) {
                                 String namex = documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName");
+                                gcashname.setText("GCash Name: "+documentSnapshot.getString("gcash_name"));
+                                gcashnum.setText("GCash Number: "+documentSnapshot.getString("gcash_number"));
                                 name.setText(namex);
                                 //start of profile pic
                                 storageReference = FirebaseStorage.getInstance().getReference().child("profilePhoto/" + email);

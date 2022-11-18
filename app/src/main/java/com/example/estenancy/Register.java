@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class Register extends Fragment {
 
-    EditText et_fname, et_lname, et_email, et_password, et_confirm_password,et_age;
+    EditText et_fname, et_lname, et_email, et_password, et_confirm_password,et_age, gcash_name, gcash_number;
     Button btn_create_account;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
@@ -71,7 +71,8 @@ public class Register extends Fragment {
         btn_create_account = v.findViewById(R.id.btn_create_account);
         et_age = v.findViewById(R.id.et_age);
         gender = v.findViewById(R.id.sp_gender);
-
+        gcash_name = v.findViewById(R.id.gcash_name);
+        gcash_number = v.findViewById(R.id.gcash_number);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -109,6 +110,12 @@ public class Register extends Fragment {
                 }else if(TextUtils.isEmpty(et_lname.getText().toString())){
                     et_lname.setError("Please enter your Last Name.");
                     et_lname.requestFocus();
+                }else if(TextUtils.isEmpty(gcash_name.getText().toString())){
+                    gcash_name.setError("Please enter your GCash Name.");
+                    gcash_name.requestFocus();
+                }else if(TextUtils.isEmpty(gcash_number.getText().toString())){
+                    gcash_number.setError("Please enter your GCash Number.");
+                    gcash_number.requestFocus();
                 }else if(TextUtils.isEmpty(et_email.getText().toString())){
                     et_email.setError("Please enter your Email.");
                     et_email.requestFocus();
@@ -144,6 +151,8 @@ public class Register extends Fragment {
                                 users.put("lastName", et_lname.getText().toString());
                                 users.put("age", et_age.getText().toString());
                                 users.put("gender", gender.getSelectedItem().toString());
+                                users.put("gcash_name", gcash_name.getText().toString());
+                                users.put("gcash_number", gcash_number.getText().toString());
 
                                 db.collection("users").document(et_email.getText().toString())
                                         .set(users)
