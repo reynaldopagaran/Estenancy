@@ -1,55 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".homeFragments.searchFragment">
+    tools:context=".homeFragments.messageFragment"
+    android:padding="10dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg1">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline87"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="10dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline88"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="40dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline89"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="10dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline90"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="10dp" />
+        android:gravity="center">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Search"
+        android:layout_weight="1"
         android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/guideline88"
-        app:layout_constraintStart_toStartOf="@+id/guideline90"
-        app:layout_constraintTop_toTopOf="@+id/guideline87" />
+        android:textStyle="bold" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline91"
-        android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Suggest Nearby"
+            android:textSize="15sp"
+            android:layout_marginRight="10dp"
+            android:textStyle="bold" />
+
+        <it.beppi.tristatetogglebutton_library.TriStateToggleButton
+            android:id="@+id/switch_avail_homey"
+            android:layout_width="wrap_content"
+            android:layout_height="15dp"
+            app:tbDefaultStatus="off"
+            app:tbIsMidSelectable="false"
+            app:tbOffColor="#bdbdbd" />
+
+        </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="40dp" />
+        android:gravity="center">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <EditText
+        android:id="@+id/et_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginRight="10dp"
+        android:hint="Here..."/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/btn_search"
+            android:src="@drawable/searchs"/>
+
+    </LinearLayout>
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/shimmery"
+        app:shimmer_shape="radial"
+        android:visibility="gone"
+        app:shimmer_repeat_mode="restart">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <include layout="@layout/card_view"></include>
+            <include layout="@layout/card_view"></include>
+            <include layout="@layout/card_view"></include>
+            <include layout="@layout/card_view"></include>
+            <include layout="@layout/card_view"></include>
+        </LinearLayout>
+
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

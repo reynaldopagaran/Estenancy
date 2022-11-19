@@ -62,8 +62,15 @@
             android:id="@+id/address_post"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:text="Address: "
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/distancee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="---"
             android:textSize="12sp"
             android:textStyle="bold" />
 

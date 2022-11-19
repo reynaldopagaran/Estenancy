@@ -13,8 +13,9 @@ public class post_model_getPosts {
     String desc;
     Bitmap profilePic;
     Bitmap thumbnail;
+    String distance;
 
-    public post_model_getPosts(String title, String name, Bitmap profilePic, Bitmap thumbnail, String timeStampx, String id, String email, String stat, String desc) {
+    public post_model_getPosts(String distace, String title, String name, Bitmap profilePic, Bitmap thumbnail, String timeStampx, String id, String email, String stat, String desc) {
         this.setTitle(title);
         this.setName(name);
         this.setProfilePic(profilePic);
@@ -24,6 +25,15 @@ public class post_model_getPosts {
         this.setEmail(email);
         this.setStat(stat);
         this.setDesc(desc);
+        this.setDistance(distace);
+    }
+
+    public String getDistance() {
+        return "Distance: " +distance;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
     }
 
     public String getDesc() {

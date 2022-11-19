@@ -72,7 +72,7 @@ import proj.me.bitframe.helper.FrameType;
 public class Post extends Fragment {
 
     CircleImageView circleImageView;
-    TextView name, title, time, desc, m, r, address_post, status, gcashname, gcashnum;
+    TextView name, title, time, desc, m, r, address_post, status, gcashname, gcashnum, distancee;
     Button msg, book, nav, view_profile, reservation_payment;
     String id, email;
     private StorageReference storageReference;
@@ -102,7 +102,6 @@ public class Post extends Fragment {
     int checkedItem = 0;
     int limit=0;
     String[] items1;
-
 
     public Post() {
         // Required empty public constructor
@@ -154,6 +153,9 @@ public class Post extends Fragment {
         seeMore = v.findViewById(R.id.seeMore);
         gcashname = v.findViewById(R.id.gcashName);
         gcashnum = v.findViewById(R.id.gcashNumber);
+        distancee = v.findViewById(R.id.distancee);
+
+        distancee.setText(Post.this.getArguments().getString("distance"));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             desc.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);

@@ -48,6 +48,7 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
         holder.profile_post.setImageBitmap(array_getPosts.get(position).getProfilePic());
         holder.thumbnail.setImageBitmap(array_getPosts.get(position).getThumbnail());
         holder.descr.setText(array_getPosts.get(position).getDesc());
+        holder.distance.setText(array_getPosts.get(position).getDistance());
 
         if(array_getPosts.get(position).getStat().equals("Available")){
             holder.stat.setTextColor(Color.parseColor("#01DA15"));
@@ -79,7 +80,7 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profile_post;
-        TextView name, title, timeStampx,stat, descr;
+        TextView name, title, timeStampx,stat, descr, distance;
         ImageView thumbnail;
 
         public ViewHolder(@NonNull View itemView) {
@@ -91,6 +92,7 @@ public class post_model_recyclerView extends RecyclerView.Adapter<post_model_rec
             title = itemView.findViewById(R.id.title_card);
             thumbnail = itemView.findViewById(R.id.thumbnail);
             descr = itemView.findViewById(R.id.desc_post);
+            distance = itemView.findViewById(R.id.distance);
 
             //remove comment on method call if you want animation on cards
             //animation(itemView);
