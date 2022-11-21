@@ -44,5 +44,9 @@
             android:theme="@style/Base.Theme.AppCompat" />
     </application>
 
+    <queries>
+        <package android:name="com.globe.gcash.android" />
+    </queries>
+
 </manifest>
 

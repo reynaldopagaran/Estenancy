@@ -44,10 +44,12 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
     SharedPreferences sharedPreferences;
     private static final String SHARED_PREF_NAME = "mypref";
 
+
     public my_listing(Context context, List<my_listing_get_post> my_listing_array, ItemClickListener itemClickListener) {
         this.context = context;
         this.my_listing_array = my_listing_array;
         this.itemClickListener = itemClickListener;
+
         this.db = db;
     }
 
@@ -140,12 +142,6 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
                                     .show();
                         } else if(item.getItemId() == R.id.view_appointments){
                             Appointments appointments = new Appointments();
-                            /*
-                            Bundle bundle = new Bundle();
-                            bundle.putString("id", my_listing_array.get(position).getId());
-                            appointments.setArguments(bundle);
-
-                             */
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putString("myId", my_listing_array.get(position).getId());
                             editor.commit();

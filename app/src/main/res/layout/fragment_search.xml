@@ -22,24 +22,50 @@
         android:text="Search"
         android:layout_weight="1"
         android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Suggest Nearby"
+            android:text="Nearby"
             android:textSize="15sp"
             android:layout_marginRight="10dp"
             android:textStyle="bold" />
 
         <it.beppi.tristatetogglebutton_library.TriStateToggleButton
             android:id="@+id/switch_avail_homey"
-            android:layout_width="wrap_content"
+            android:layout_width="30dp"
             android:layout_height="15dp"
             app:tbDefaultStatus="off"
+            android:layout_marginRight="10dp"
             app:tbIsMidSelectable="false"
             app:tbOffColor="#bdbdbd" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+        <com.shawnlin.numberpicker.NumberPicker
+            android:id="@+id/numberPicks"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            app:np_textSize="15sp"
+            app:np_selectedTextSize="15sp"
+            app:np_max="20"
+            app:np_min="1"
+            app:np_dividerType="underline"
+            app:np_orientation="horizontal"
+            app:np_value="5"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Km"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
         </LinearLayout>
 
 

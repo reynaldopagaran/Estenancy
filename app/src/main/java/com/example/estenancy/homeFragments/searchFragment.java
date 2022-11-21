@@ -51,6 +51,7 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
 import com.google.android.gms.maps.model.LatLng;
+import com.shawnlin.numberpicker.NumberPicker;
 
 import org.checkerframework.checker.units.qual.A;
 
@@ -92,6 +93,7 @@ public class searchFragment extends Fragment {
     String token = "sk.eyJ1IjoiYW5kcm9tZWRhNyIsImEiOiJjbDg2YnZpa2IwNzk3M3VvaGN3ZnczNjcwIn0.axp5uCx677xYd9E6vxwWWA";
     String distance;
     Boolean ifNearby = false;
+    NumberPicker numberPickers;
     public searchFragment() {
         // Required empty public constructor
     }
@@ -124,6 +126,7 @@ public class searchFragment extends Fragment {
         firebaseUser = mAuth.getCurrentUser();
         shimmerFrameLayout = v.findViewById(R.id.shimmery);
         simpleLocation = new SimpleLocation(getContext());
+        numberPickers = v.findViewById(R.id.numberPicks);
 
         toggle = v.findViewById(R.id.switch_avail_homey);
         search = v.findViewById(R.id.et_search);
@@ -143,6 +146,19 @@ public class searchFragment extends Fragment {
 
 
     public void suggestNearby() {
+
+        numberPickers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(toggle.getToggleStatus().equals(TriStateToggleButton.ToggleStatus.on)){
+                    getPosts(search.getText().toString());
+                }else{
+
+                }
+            }
+        });
+
+
         toggle.setOnToggleChanged(new TriStateToggleButton.OnToggleChanged() {
             @Override
             public void onToggle(TriStateToggleButton.ToggleStatus toggleStatus, boolean booleanToggleStatus, int toggleIntValue) {
@@ -267,7 +283,7 @@ public class searchFragment extends Fragment {
                                                                                                     public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
                                                                                                         currentRoute = response.body().routes().get(0);
                                                                                                         if(ifNearby){
-                                                                                                            if(currentRoute.distance() / 1000 < 5){
+                                                                                                            if(currentRoute.distance() / 1000 < numberPickers.getValue()){
                                                                                                                 array_getPosts.add(new post_model_getPosts( String.format("%.2f", currentRoute.distance() / 1000) + " km",title, name, dp, thumbnail, timeStamp, id, email, stat, descr));
                                                                                                                 storageReference = storage.getReference();
                                                                                                                 post_model_recyclerView post_model_recyclerView = new post_model_recyclerView(getContext(), array_getPosts, new post_model_recyclerView.ItemClickListener() {
@@ -277,6 +293,7 @@ public class searchFragment extends Fragment {
                                                                                                                     }
                                                                                                                 });
                                                                                                                 recyclerView.setAdapter(post_model_recyclerView);
+
                                                                                                             }
                                                                                                         }else{
                                                                                                             array_getPosts.add(new post_model_getPosts( String.format("%.2f", currentRoute.distance() / 1000) + " km" ,title, name, dp, thumbnail, timeStamp, id, email, stat, descr));
@@ -288,6 +305,7 @@ public class searchFragment extends Fragment {
                                                                                                                 }
                                                                                                             });
                                                                                                             recyclerView.setAdapter(post_model_recyclerView);
+
                                                                                                         }
 
                                                                                                     }

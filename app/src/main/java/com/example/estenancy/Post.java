@@ -1,11 +1,13 @@
 package com.example.estenancy;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -190,6 +192,8 @@ public class Post extends Fragment {
         return v;
     }
 
+
+
     public void setReservation_payment(){
         reservation_payment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -202,13 +206,17 @@ public class Post extends Fragment {
                         gcashnum.getText().toString().replace("GCash Number: ", ""));
                 clipboardManager.setPrimaryClip(clipData);
 
+                PackageManager pm = getContext().getPackageManager();
 
-                String url = "https://m.gcash.com/gcashapp/gcash-promotion-web/2.0.0/index.html#";
-                Intent i = new Intent();
-                i.setPackage("com.android.chrome");
-                i.setAction(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                startActivity(i);
+
+                Intent appStartIntent = pm.getLaunchIntentForPackage("com.globe.gcash.android");
+                if (null != appStartIntent)
+                {
+                    getContext().startActivity(appStartIntent);
+                }else {
+                    Toast.makeText(getContext(), "GCash is not installed.", Toast.LENGTH_LONG).show();
+                }
+
 
                 Toast.makeText(getContext(), "GCash number copied. Paste it in the payment form", Toast.LENGTH_LONG).show();
         }

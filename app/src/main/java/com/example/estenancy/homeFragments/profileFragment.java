@@ -201,7 +201,7 @@ public class profileFragment extends Fragment {
                                                     myListing.add(new my_listing_get_post(title, timeStamp, thumbnail, id, email));
                                                     storageReference = storage.getReference();
 
-                                                    my_listing my_listing = new my_listing(getContext(), myListing, new my_listing.ItemClickListener() {
+                                                    my_listing my_listing = new my_listing(getContext(), myListing,new my_listing.ItemClickListener() {
                                                         @Override
                                                         public void onItemClick(my_listing_get_post my_listing_get_post) {
                                                             showPost(my_listing_get_post.getId(), my_listing_get_post.getEmail());

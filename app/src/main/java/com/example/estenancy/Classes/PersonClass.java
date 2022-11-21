@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.estenancy.Chat.chat;
 import com.example.estenancy.R;
 import com.example.estenancy.ViewProfile;
 import com.example.estenancy.completedBooking;
@@ -154,7 +155,13 @@ public class PersonClass extends RecyclerView.Adapter<PersonClass.ViewHolder> {
                             transaction.commit();
 
                         } else if (item.getItemId() == R.id.messagex) {
-
+                            chat chat = new chat();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("email", names.get(position).getEmail().replace("@gmail.com", ""));
+                            chat.setArguments(bundle);
+                            FragmentTransaction transaction = ((AppCompatActivity)mContext).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                            transaction.replace(R.id.mainLayout, chat).addToBackStack("tag");
+                            transaction.commit();
                         }
 
                         return true;

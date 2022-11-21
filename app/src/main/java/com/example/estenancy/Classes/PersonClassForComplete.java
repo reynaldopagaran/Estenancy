@@ -23,10 +23,12 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.estenancy.Chat.chat;
 import com.example.estenancy.R;
 import com.example.estenancy.ViewProfile;
 import com.example.estenancy.completedBooking;
 import com.example.estenancy.currentBooking;
+import com.example.estenancy.homeFragments.messageFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -127,7 +129,13 @@ public class PersonClassForComplete extends RecyclerView.Adapter<PersonClassForC
                             transaction.commit();
 
                         } else if (item.getItemId() == R.id.messagex) {
-
+                            chat chat = new chat();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("email", names.get(position).getEmail().replace("@gmail.com", ""));
+                            chat.setArguments(bundle);
+                            FragmentTransaction transaction = ((AppCompatActivity)mContext).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_slide_right, R.anim.exit_slide_left, R.anim.enter_slide_left, R.anim.exit_slide_right);
+                            transaction.replace(R.id.mainLayout, chat).addToBackStack("tag");
+                            transaction.commit();
                         }
 
                         return true;
