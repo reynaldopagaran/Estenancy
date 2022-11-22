@@ -258,9 +258,6 @@ public class homeFragment extends Fragment {
                                                                                                 });
 
 
-
-
-
                                                                                             }
                                                                                         }).addOnFailureListener(new OnFailureListener() {
                                                                                             @Override

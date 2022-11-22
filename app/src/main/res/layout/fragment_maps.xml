@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg1"
     tools:context=".MapsFragment"
     android:paddingRight="20dp"
+    android:orientation="vertical"
     android:paddingLeft="20dp"
   >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
 
     <TextView
         android:id="@+id/currentLoc"
@@ -36,7 +33,7 @@
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="400dp"
         android:layout_marginBottom="20dp" />
 
     <Button
@@ -46,5 +43,5 @@
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
         android:text="Done" />
-    </LinearLayout>
-</ScrollView>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

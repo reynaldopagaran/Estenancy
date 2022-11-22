@@ -53,7 +53,7 @@
             android:layout_height="20dp"
             app:np_textSize="15sp"
             app:np_selectedTextSize="15sp"
-            app:np_max="20"
+            app:np_max="10"
             app:np_min="1"
             app:np_dividerType="underline"
             app:np_orientation="horizontal"

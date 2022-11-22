@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="right"
-        android:text="Get Appointment"/>
+        android:text="View Finished Appointment"/>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
