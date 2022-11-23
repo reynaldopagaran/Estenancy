@@ -1,6 +1,8 @@
 package com.example.estenancy.Classes;
 
 import android.graphics.Bitmap;
+import android.text.Html;
+import android.text.Spanned;
 
 public class post_model_getPosts {
 
@@ -28,8 +30,9 @@ public class post_model_getPosts {
         this.setDistance(distace);
     }
 
+
     public String getDistance() {
-        return "Distance: " +distance;
+        return distance;
     }
 
     public void setDistance(String distance) {

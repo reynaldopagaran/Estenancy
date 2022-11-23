@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.provider.CalendarContract;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -157,7 +159,9 @@ public class Post extends Fragment {
         gcashnum = v.findViewById(R.id.gcashNumber);
         distancee = v.findViewById(R.id.distancee);
 
-        distancee.setText(Post.this.getArguments().getString("distance"));
+
+        Spanned d = Html.fromHtml("<b>Distance: </b>" +Post.this.getArguments().getString("distance"));
+        distancee.setText(d);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             desc.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
@@ -731,8 +735,13 @@ public class Post extends Fragment {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot != null && documentSnapshot.exists()) {
                                 String namex = documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName");
-                                gcashname.setText("GCash Name: "+documentSnapshot.getString("gcash_name"));
-                                gcashnum.setText("GCash Number: "+documentSnapshot.getString("gcash_number"));
+
+                                Spanned g = Html.fromHtml("<b>GCash Number: </b>"+documentSnapshot.getString("gcash_number"));
+                                Spanned gn = Html.fromHtml("<b>GCash Name: </b>"+documentSnapshot.getString("gcash_name"));
+
+
+                                gcashname.setText(gn);
+                                gcashnum.setText(g);
                                 name.setText(namex);
                                 //start of profile pic
                                 storageReference = FirebaseStorage.getInstance().getReference().child("profilePhoto/" + email);
@@ -796,10 +805,12 @@ public class Post extends Fragment {
                                     nav.setVisibility(View.GONE);
                                     reservation_payment.setVisibility(View.GONE);
                                 }
-
-                                m.setText("Monthly payment: " + pesoFormat.format(Integer.parseInt(document.getString("monthly_payment"))));
-                                r.setText("Reservation Fee: " + pesoFormat.format(Integer.parseInt(document.getString("reservation_fee"))));
-                                address_post.setText("Address: " + document.getString("address"));
+                                Spanned monthly_str = Html.fromHtml("<b>Monthly payment: </b>" + pesoFormat.format(Integer.parseInt(document.getString("monthly_payment"))));
+                                Spanned res_str = Html.fromHtml("<b>Reservation Fee: </b>" + pesoFormat.format(Integer.parseInt(document.getString("reservation_fee"))));
+                                Spanned address_str = Html.fromHtml("<b>Address: </b>" + document.getString("address"));
+                                m.setText(monthly_str);
+                                r.setText(res_str);
+                                address_post.setText(address_str);
                                 desc.setText(document.getString("description"));
                                 limit = Integer.parseInt(document.getString("nob"));
                                 Timestamp timeStampFire = document.getTimestamp("timeStamp");
