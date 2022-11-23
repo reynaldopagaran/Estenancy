@@ -29,6 +29,8 @@ import com.example.estenancy.currentBooking;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.checkerframework.checker.units.qual.A;
 
@@ -43,6 +45,8 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
     private FirebaseFirestore db;
     SharedPreferences sharedPreferences;
     private static final String SHARED_PREF_NAME = "mypref";
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
 
 
     public my_listing(Context context, List<my_listing_get_post> my_listing_array, ItemClickListener itemClickListener) {
@@ -64,6 +68,8 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
         holder.myTitle.setText(my_listing_array.get(position).getMy_title());
         holder.timeStamp.setText(my_listing_array.get(position).getTimeStamp());
         holder.myThumbnail.setImageBitmap(my_listing_array.get(position).getMy_thumbnail());
@@ -118,6 +124,18 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
+
+                                                            db.collection("categories")
+                                                                            .document(my_listing_array.get(position).getId())
+                                                                                    .delete();
+
+                                                            db.collection("appointmentOnPost")
+                                                                    .document(my_listing_array.get(position).getId())
+                                                                    .delete();
+
+                                                            storageReference.child("posts/"+my_listing_array.get(position).getId())
+                                                                            .delete();
+
                                                             Toast.makeText(context, "Deleted successfully.",
                                                                     Toast.LENGTH_LONG).show();
                                                             notifyDataSetChanged();

@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.provider.CalendarContract;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -492,6 +493,7 @@ public class Post extends Fragment {
                                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
                                 alertDialog.setTitle("Appointments List  (Limit: "+limit+")");
                                 // alertDialog.setMessage("Here are the list of appointments");
+                               // int size = -1;
 
                                 for(int u = 0; u < items.size(); u++){
                                     chosenDate = items.get(u);
@@ -504,63 +506,64 @@ public class Post extends Fragment {
                                     }
                                 }
 
+                                try{
+                                    appointment_date = items.get(checkedItem);
 
+                                    items1 = new String[items.size()];
 
-                                appointment_date = items.get(checkedItem);
-
-                                items1 = new String[items.size()];
-
-                                for(int v =0; v < items.size(); v++){
-                                    items1[v] = items.get(v);
-                                }
-
-                                appointment_date = items.get(0).substring(0, items.get(0).indexOf("("));
-                                alertDialog.setSingleChoiceItems(items1, checkedItem, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        appointment_date = items.get(which).substring(0, items.get(which).indexOf("("));
+                                    for(int v =0; v < items.size(); v++){
+                                        items1[v] = items.get(v);
                                     }
-                                }).setPositiveButton("Book", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
 
-                                        //get full name
-                                        db.collection("users")
-                                                .document(mAuth.getCurrentUser().getEmail())
-                                                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                        if (task.isSuccessful()) {
-                                                            DocumentSnapshot documentSnapshot = task.getResult();
-                                                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                    appointment_date = items.get(0).substring(0, items.get(0).indexOf("("));
+                                    alertDialog.setSingleChoiceItems(items1, checkedItem, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            appointment_date = items.get(which).substring(0, items.get(which).indexOf("("));
+                                        }
+                                    }).setPositiveButton("Book", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            //get full name
+                                            db.collection("users")
+                                                    .document(mAuth.getCurrentUser().getEmail())
+                                                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                            if (task.isSuccessful()) {
+                                                                DocumentSnapshot documentSnapshot = task.getResult();
+                                                                if (documentSnapshot != null && documentSnapshot.exists()) {
 
 
-                                                                Map<String, Object> data = new HashMap<>();
-                                                                data.put(mAuth.getCurrentUser().getEmail().replace("@gmail.com", ""), documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName"));
-                                                                db.collection("appointmentOnPost")
-                                                                        .document(id)
-                                                                        .collection("booked")
-                                                                        .document(appointment_date)
-                                                                        .set(data, SetOptions.merge());
+                                                                    Map<String, Object> data = new HashMap<>();
+                                                                    data.put(mAuth.getCurrentUser().getEmail().replace("@gmail.com", ""), documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName"));
+                                                                    db.collection("appointmentOnPost")
+                                                                            .document(id)
+                                                                            .collection("booked")
+                                                                            .document(appointment_date)
+                                                                            .set(data, SetOptions.merge());
 
-                                                                Toast.makeText(getActivity(), "Booked successfully.",
-                                                                        Toast.LENGTH_SHORT).show();
+                                                                    Toast.makeText(getActivity(), "Booked successfully.",
+                                                                            Toast.LENGTH_SHORT).show();
 
-                                                                appointment_date = "";
+                                                                    appointment_date = "";
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                });
-                                    }
-                                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        appointment_date = "";
-                                    }
-                                });
+                                                    });
+                                        }
+                                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            appointment_date = "";
+                                        }
+                                    });
 
-                                alertDialog.show();
-
+                                    alertDialog.show();
+                                }catch (Exception e){
+                                    Toast.makeText(getContext(), "All booking schedules are fully booked.", Toast.LENGTH_SHORT).show();
+                                }
 
                             }
                         } else {

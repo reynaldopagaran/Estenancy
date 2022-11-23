@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,7 +56,10 @@ public class currentBooking extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageReference;
     PersonClass personClass;
-    TextView no_appointment_text;
+    TextView no_appointment_text, outof;
+    ProgressBar progressBar;
+
+    int max, num_of_booked;
 
     public currentBooking() {
         // Required empty public constructor
@@ -94,11 +98,14 @@ public class currentBooking extends Fragment {
         names = new ArrayList<>();
         getAppoint = v.findViewById(R.id.getAppoint);
         no_appointment_text = v.findViewById(R.id.no_appointment_text);
+        progressBar = v.findViewById(R.id.indication1);
+        outof = v.findViewById(R.id.outof1);
 
         //method calls
         try {
             getAppointmentDates(id);
             populateList();
+            getMax();
         } catch (Exception e) {
 
         }
@@ -106,11 +113,32 @@ public class currentBooking extends Fragment {
         return v;
     }
 
+    public void getMax(){
+        db.collection("posts")
+                .document(id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                max = Integer.parseInt(documentSnapshot.getString("nob"));
+                                progressBar.setMax(max);
+                            }
+                        } else {
+
+                        }
+                    }
+                });
+    }
+
     public void populateList() {
         getAppoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myList(id , spinner.getSelectedItem().toString());
+
             }
         });
     }
@@ -127,6 +155,14 @@ public class currentBooking extends Fragment {
                         if (documentSnapshot != null && documentSnapshot.exists()) {
 
                             Iterator iterator = documentSnapshot.getData().entrySet().iterator();
+                            num_of_booked = documentSnapshot.getData().size();
+
+                            progressBar.setProgress(num_of_booked);
+                            if(num_of_booked == max){
+                                outof.setText("Fully Booked.");
+                            }else {
+                                outof.setText(num_of_booked + " out of " + max+ " booking/s");
+                            }
 
                             if(iterator.hasNext()){
                                 no_appointment_text.setVisibility(View.GONE);
@@ -157,12 +193,18 @@ public class currentBooking extends Fragment {
                                 names.clear();
                                 no_appointment_text.setVisibility(View.VISIBLE);
                                 list.setVisibility(View.GONE);
+
+                                progressBar.setProgress(0);
+                                outof.setText(0 + " out of " + max + " booking/s");
                             }
 
                         }else{
                             names.clear();
                             no_appointment_text.setVisibility(View.VISIBLE);
                             list.setVisibility(View.GONE);
+
+                            progressBar.setProgress(0);
+                            outof.setText(0 + " out of " + max + " booking/s");
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -170,9 +212,9 @@ public class currentBooking extends Fragment {
                     public void onFailure(@NonNull Exception e) {
                         no_appointment_text.setVisibility(View.VISIBLE);
                         list.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "x", Toast.LENGTH_SHORT).show();
                     }
                 });
+
 
     }
 

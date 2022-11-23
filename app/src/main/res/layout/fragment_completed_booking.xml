@@ -9,6 +9,23 @@
     android:gravity="center"
     android:background="@drawable/bg1">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/outof"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total of completed booking"
+            android:layout_marginRight="20dp"/>
+
+
+    </LinearLayout>
+
+
     <Spinner
         android:id="@+id/spin_dates1"
         android:layout_width="wrap_content"
@@ -41,7 +58,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="You have no appointments here."
+            android:text="You have no completed appointments here."
             android:id="@+id/no_appointment_text1"
             android:gravity="center"
             android:visibility="gone"/>

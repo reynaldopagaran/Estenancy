@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -48,8 +49,9 @@ public class completedBooking extends Fragment {
     private static final String SHARED_PREF_NAME = "mypref";
     private FirebaseStorage storage;
     private StorageReference storageReference;
-    TextView no_appointment_text;
+    TextView no_appointment_text, outof;
     PersonClassForComplete personClass;
+    int max, num_of_booked;
 
     public completedBooking() {
         // Required empty public constructor
@@ -86,6 +88,7 @@ public class completedBooking extends Fragment {
         names = new ArrayList<>();
         getAppoint = v.findViewById(R.id.getAppoint1);
         no_appointment_text = v.findViewById(R.id.no_appointment_text1);
+        outof = v.findViewById(R.id.outof);
 
         //method calls
         try {
@@ -97,6 +100,7 @@ public class completedBooking extends Fragment {
 
         return v;
     }
+
 
     public void populateList() {
         getAppoint.setOnClickListener(new View.OnClickListener() {
@@ -118,6 +122,9 @@ public class completedBooking extends Fragment {
                         DocumentSnapshot documentSnapshot = task.getResult();
                         if (documentSnapshot != null && documentSnapshot.exists()) {
                             Iterator iterator = documentSnapshot.getData().entrySet().iterator();
+                            num_of_booked = documentSnapshot.getData().size();
+                            outof.setText("Total of completed booking: "+num_of_booked);
+
                             if (iterator.hasNext()) {
                                 no_appointment_text.setVisibility(View.GONE);
                                 list.setVisibility(View.VISIBLE);
@@ -145,11 +152,13 @@ public class completedBooking extends Fragment {
                                 names.clear();
                                 no_appointment_text.setVisibility(View.VISIBLE);
                                 list.setVisibility(View.GONE);
+                                outof.setText("Total of completed booking: 0");
                             }
                         }else{
                             names.clear();
                             no_appointment_text.setVisibility(View.VISIBLE);
                             list.setVisibility(View.GONE);
+                            outof.setText("Total of completed booking: 0");
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
