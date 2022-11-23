@@ -222,7 +222,7 @@ public class searchFragment extends Fragment {
         shimmerFrameLayout.setVisibility(View.VISIBLE);
         shimmerFrameLayout.startShimmer();
         array_getPosts.clear();
-        db.collection("posts").orderBy("title_post").startAt(search).endAt(search + "\uf8ff")
+        db.collection("posts").orderBy("address").startAt(search).endAt(search + "\uf8ff")
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
