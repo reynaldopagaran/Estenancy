@@ -133,8 +133,6 @@ public class my_listing extends RecyclerView.Adapter<my_listing.ViewHolder> {
                                                                     .document(my_listing_array.get(position).getId())
                                                                     .delete();
 
-                                                            storageReference.child("posts/"+my_listing_array.get(position).getId())
-                                                                            .delete();
 
                                                             Toast.makeText(context, "Deleted successfully.",
                                                                     Toast.LENGTH_LONG).show();
