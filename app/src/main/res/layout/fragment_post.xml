@@ -47,8 +47,7 @@
             android:layout_marginBottom="6dp"
             android:scrollbars="vertical"
             android:text="Time Stamp"
-            android:textSize="10sp"
-            >
+            android:textSize="10sp"/>
 
         <TextView
             android:id="@+id/title"
