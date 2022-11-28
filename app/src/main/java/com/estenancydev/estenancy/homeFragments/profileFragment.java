@@ -292,19 +292,26 @@ public class profileFragment extends Fragment {
                                 final EditText lname = new EditText(context);
                                 layout.addView(lname);
 
-                                final TextView gname = new TextView(context);
-                                gname.setPadding(15, 0, 0, -5);
-                                gname.setText("\nGCash Name:");
-                                layout.addView(gname);
-                                final EditText g_name = new EditText(context);
-                                layout.addView(g_name);
-
                                 final TextView gnum = new TextView(context);
                                 gnum.setPadding(15, 0, 0, -5);
                                 gnum.setText("\nGCash Number:");
                                 layout.addView(gnum);
                                 final EditText g_num = new EditText(context);
                                 layout.addView(g_num);
+
+                                final TextView paymaya = new TextView(context);
+                                paymaya.setPadding(15, 0, 0, -5);
+                                paymaya.setText("\nPaymaya Number:");
+                                layout.addView(paymaya);
+                                final EditText p_aymaya = new EditText(context);
+                                layout.addView(p_aymaya);
+
+                                final TextView paypal = new TextView(context);
+                                paypal.setPadding(15, 0, 0, -5);
+                                paypal.setText("\nPaypal Email:");
+                                layout.addView(paypal);
+                                final EditText p_aypal = new EditText(context);
+                                layout.addView(p_aypal);
 
                                 final TextView a = new TextView(context);
                                 a.setPadding(15, 0, 0, -5);
@@ -337,10 +344,12 @@ public class profileFragment extends Fragment {
                                 alert.setView(fname);
                                 alert.setView(l);
                                 alert.setView(lname);
-                                alert.setView(gname);
-                                alert.setView(g_name);
                                 alert.setView(gnum);
                                 alert.setView(g_num);
+                                alert.setView(paymaya);
+                                alert.setView(p_aymaya);
+                                alert.setView(paypal);
+                                alert.setView(p_aypal);
                                 alert.setView(a);
                                 alert.setView(age);
                                 alert.setView(g);
@@ -359,9 +368,9 @@ public class profileFragment extends Fragment {
                                                         fname.setText(documentSnapshot.getString("firstName"));
                                                         lname.setText(documentSnapshot.getString("lastName"));
                                                         age.setText(documentSnapshot.getString("age"));
-                                                        g_name.setText(documentSnapshot.getString("gcash_name"));
+                                                        p_aymaya.setText(documentSnapshot.getString("paymaya"));
                                                         g_num.setText(documentSnapshot.getString("gcash_number"));
-
+                                                        p_aypal.setText(documentSnapshot.getString("paypal"));
                                                         switch (documentSnapshot.getString("gender")) {
                                                             case "Male":
                                                                 gender.setSelection(0);
@@ -388,7 +397,8 @@ public class profileFragment extends Fragment {
                                                 .document(mAuth.getCurrentUser().getEmail())
                                                 .update("firstName", fname.getText().toString(), "lastName", lname.getText().toString(),
                                                         "age", age.getText().toString(), "gender", gender.getSelectedItem().toString(),
-                                                        "gcash_name", g_name.getText().toString(), "gcash_number", g_num.getText().toString())
+                                                        "paymaya", p_aymaya.getText().toString(), "gcash_number", g_num.getText().toString(),
+                                                        "paypal", p_aypal.getText().toString())
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {

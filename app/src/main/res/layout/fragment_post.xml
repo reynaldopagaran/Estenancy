@@ -87,19 +87,28 @@
             android:textSize="12sp" />
 
         <TextView
-            android:layout_marginTop="10dp"
-            android:id="@+id/gcashName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="GCash Name: "
-            android:textSize="12sp" />
-        <TextView
             android:id="@+id/gcashNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="GCash Number: "
             android:textSize="12sp"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/paymaya1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Paymaya: "
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/paypal1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Paypal Email: "
+            android:textSize="12sp"
             android:layout_marginBottom="10dp"/>
+
 
         <TextView
             android:id="@+id/status"
@@ -208,9 +217,9 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:padding="0dp"
-                android:text="  Reservation Payment"
+                android:text="  Payment"
                 app:iconTint="@null"
-                app:icon="@drawable/gcash"
+                app:icon="@drawable/cash"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 android:visibility="gone"/>

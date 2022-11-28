@@ -52,6 +52,8 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.io.File;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -75,7 +77,7 @@ import proj.me.bitframe.helper.FrameType;
 public class Post extends Fragment {
 
     CircleImageView circleImageView;
-    TextView name, title, time, desc, m, r, address_post, status, gcashname, gcashnum, distancee;
+    TextView name, title, time, desc, m, r, address_post, status, paymaya, gcashnum, distancee, paypal;
     Button msg, book, nav, view_profile, reservation_payment;
     String id, email;
     private StorageReference storageReference;
@@ -105,6 +107,9 @@ public class Post extends Fragment {
     int checkedItem = 0;
     int limit=0;
     String[] items1;
+    String[] p_methods;
+    int whichPayment = 0;
+    ClipData clipData;
 
     public Post() {
         // Required empty public constructor
@@ -141,7 +146,7 @@ public class Post extends Fragment {
         datesBooked = new ArrayList<>();
         slots = new ArrayList<>();
         items = new ArrayList<>();
-
+        p_methods = new String[3];
 
         circleImageView = v.findViewById(R.id.profile);
         name = v.findViewById(R.id.name1);
@@ -154,9 +159,10 @@ public class Post extends Fragment {
         address_post = v.findViewById(R.id.address_post);
         status = v.findViewById(R.id.status);
         seeMore = v.findViewById(R.id.seeMore);
-        gcashname = v.findViewById(R.id.gcashName);
+        paymaya = v.findViewById(R.id.paymaya1);
         gcashnum = v.findViewById(R.id.gcashNumber);
         distancee = v.findViewById(R.id.distancee);
+        paypal = v.findViewById(R.id.paypal1);
 
 
         Spanned d = Html.fromHtml("<b>Distance: </b>" +Post.this.getArguments().getString("distance"));
@@ -202,26 +208,82 @@ public class Post extends Fragment {
             @Override
             public void onClick(View v) {
 
-                //copy gcash number
-                ClipboardManager clipboardManager = (ClipboardManager)
-                      getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clipData = ClipData.newPlainText("gcash number",
-                        gcashnum.getText().toString().replace("GCash Number: ", ""));
-                clipboardManager.setPrimaryClip(clipData);
+                p_methods[0] = "Gcash";
+                p_methods[1] = "Paymaya";
+                p_methods[2] = "Paypal";
 
-                PackageManager pm = getContext().getPackageManager();
+                AlertDialog.Builder paymentMethodBuilder = new AlertDialog.Builder(getContext());
+                paymentMethodBuilder.setTitle("Select Payment Method");
 
-                Intent appStartIntent = pm.getLaunchIntentForPackage("com.globe.gcash.android");
-                if (null != appStartIntent)
-                {
-                    getContext().startActivity(appStartIntent);
-                }else {
-                    Toast.makeText(getContext(), "GCash is not installed.", Toast.LENGTH_LONG).show();
-                }
+                paymentMethodBuilder.setSingleChoiceItems(p_methods, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        whichPayment = which;
+                    }
+                }).setPositiveButton("Choose", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                Toast.makeText(getContext(), "GCash number copied. Paste it in the payment form", Toast.LENGTH_LONG).show();
+                        switch (whichPayment)
+                        {
+                            case 0:
+                                clipboard("GCash Number: ", "com.globe.gcash.android", "GCash", "Gcash number");
+                                break;
+                            case 1:
+                                clipboard("Paymaya Number: ", "com.paymaya", "Paymaya", "Paymaya number");
+                                break;
+                            case 2:
+                                clipboard("Paypal Email: ", "com.paypal.android.p2pmobile", "Paypal", "Paypal email");
+                                break;
+                        }
+
+                        whichPayment = 0;
+
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+                paymentMethodBuilder.show();
+
         }
         });
+
+    }
+
+    public void clipboard(String name, String package_name, String appName, String toastName){
+
+
+
+        ClipboardManager clipboardManager = (ClipboardManager)
+                getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+
+        if(name.equals("GCash Number: ")){
+            clipData = ClipData.newPlainText("gcash",
+                    gcashnum.getText().toString().replace(name, ""));
+        }else if(name.equals("Paymaya Number: ")){
+            clipData = ClipData.newPlainText("paymaya",
+                    paymaya.getText().toString().replace(name, ""));
+        }else if(name.equals("Paypal Email: ")){
+            clipData = ClipData.newPlainText("paypal",
+                    paypal.getText().toString().replace(name, ""));
+        }
+
+        clipboardManager.setPrimaryClip(clipData);
+        PackageManager pm = getContext().getPackageManager();
+
+        Intent appStartIntent = pm.getLaunchIntentForPackage(package_name);
+        if (null != appStartIntent)
+        {
+            getContext().startActivity(appStartIntent);
+        }else {
+            Toast.makeText(getContext(), appName + " is not installed.", Toast.LENGTH_LONG).show();
+        }
+
+        Toast.makeText(getContext(), toastName+" copied. Paste it in the payment form", Toast.LENGTH_LONG).show();
     }
 
     public void gotoChat(){
@@ -788,11 +850,12 @@ public class Post extends Fragment {
                                 String namex = documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName");
 
                                 Spanned g = Html.fromHtml("<b>GCash Number: </b>"+documentSnapshot.getString("gcash_number"));
-                                Spanned gn = Html.fromHtml("<b>GCash Name: </b>"+documentSnapshot.getString("gcash_name"));
+                                Spanned gn = Html.fromHtml("<b>Paymaya Number: </b>"+documentSnapshot.getString("paymaya"));
+                                Spanned ppal = Html.fromHtml("<b>Paypal Email: </b>"+documentSnapshot.getString("paypal"));
 
-
-                                gcashname.setText(gn);
+                                paymaya.setText(gn);
                                 gcashnum.setText(g);
+                                paypal.setText(ppal);
                                 name.setText(namex);
                                 //start of profile pic
                                 storageReference = FirebaseStorage.getInstance().getReference().child("profilePhoto/" + email);

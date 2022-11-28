@@ -60,21 +60,6 @@
                 android:hint="Last Name" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            app:startIconTint="@null"
-            app:startIconDrawable="@drawable/gcash">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/gcash_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="GCash Name"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -90,6 +75,38 @@
                 android:layout_height="wrap_content"
                 android:hint="GCash Number"
                 android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            app:startIconTint="@null"
+            app:startIconDrawable="@drawable/maya">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/paymaya"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Paymaya Number"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            app:startIconTint="@null"
+            app:startIconDrawable="@drawable/paypal">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/paypal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Paypal Email"
+                android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout

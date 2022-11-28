@@ -46,6 +46,8 @@
 
     <queries>
         <package android:name="com.globe.gcash.android" />
+        <package android:name="com.paymaya" />
+        <package android:name="com.paypal.android.p2pmobile" />
     </queries>
 
 </manifest>
