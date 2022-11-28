@@ -30,7 +30,7 @@
             android:value="AIzaSyCqAI0YdeOQp7e-7GEsVOQqab2z6G4l698"/>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.estenancydev.estenancy.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

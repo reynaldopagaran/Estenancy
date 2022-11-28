@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:946726695993:android:3e14e3911fd08516c449e8",
         "android_client_info": {
-          "package_name": "com.example.estenancy"
+          "package_name": "com.estenancydev.estenancy"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "946726695993-0ath7h7f1manijsmdnbjddoreaehvhfd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.estenancy",
+            "package_name": "com.estenancydev.estenancy",
             "certificate_hash": "6903c247c0c8d2020d3f348e39021d977d7cf360"
           }
         },

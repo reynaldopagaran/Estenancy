@@ -6,7 +6,7 @@
     android:background="@drawable/bg1"
     android:orientation="vertical"
     android:padding="10dp"
-    tools:context=".Chat.chat">
+    tools:context="com.estenancydev.estenancy.Chat.chat">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,7 +57,7 @@
             android:layout_width="40dp"
             android:layout_height="50dp"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/sends" />
+            android:src="@drawable/sends"/>
 
     </LinearLayout>
 

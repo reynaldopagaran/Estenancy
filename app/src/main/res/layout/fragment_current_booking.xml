@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".Appointments"
+    tools:context="com.estenancydev.estenancy.Appointments"
     android:padding="10dp"
     android:gravity="center"
     android:background="@drawable/bg1">

@@ -11,7 +11,7 @@ android {
         pickFirst "lib/**/libc++_shared.so"
     }
     defaultConfig {
-        applicationId "com.example.estenancy"
+        applicationId "com.estenancydev.estenancy"
         minSdk 21
         targetSdk 32
         versionCode 1
