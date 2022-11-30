@@ -115,6 +115,7 @@ public class createPost extends Fragment {
     SimpleDateFormat fmt = new SimpleDateFormat("MMM dd, yyyy 'at' h:mm a");
     SimpleDateFormat fmt2 = new SimpleDateFormat("h:mm a");
     NumberPicker numberPicker;
+    int hour, minute, hour2, minute2;
 
     public createPost() {
         // Required empty public constructor
@@ -209,16 +210,23 @@ public class createPost extends Fragment {
                     new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
                         @Override
                         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                            new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+
+                            TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener()
+                            {
                                 @Override
-                                public void onTimeSet(TimePicker view, int hourOfDayx, int minutex) {
-
-                                    new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                                public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute)
+                                {
+                                    hour = selectedHour;
+                                    minute = selectedMinute;
+                                    TimePickerDialog.OnTimeSetListener onTimeSetListener2 = new TimePickerDialog.OnTimeSetListener()
+                                    {
                                         @Override
-                                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
-                                            currentDate.set(year, month, dayOfMonth, hourOfDayx, minutex);
-                                            currentDate2.set(year, month, dayOfMonth, hourOfDay, minute);
+                                        public void onTimeSet(TimePicker timePicker2, int selectedHour2, int selectedMinute2)
+                                        {
+                                            hour2 = selectedHour2;
+                                            minute2 = selectedMinute2;
+                                            currentDate.set(year, month, dayOfMonth, selectedHour, selectedMinute);
+                                            currentDate2.set(year, month, dayOfMonth, selectedHour2, selectedMinute2);
 
                                             appointment.add(fmt.format(currentDate.getTime()) + " to " + fmt2.format(currentDate2.getTime()));
 
@@ -236,11 +244,19 @@ public class createPost extends Fragment {
                                             appointments.setAdapter(arrayAdapter);
                                             appointments.setExpanded(true);
 
-
                                         }
-                                    }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+                                    };
+
+                                    TimePickerDialog timePickerDialog2 = new TimePickerDialog(getContext(), onTimeSetListener2, hour2, minute2, false);
+                                    timePickerDialog2.setTitle("Select Ending Time");
+                                    timePickerDialog2.show();
+
                                 }
-                            }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+                            };
+
+                            TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), onTimeSetListener, hour, minute, false);
+                            timePickerDialog.setTitle("Select Starting Time");
+                            timePickerDialog.show();
                         }
                     }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
                 }
