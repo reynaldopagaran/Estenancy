@@ -246,7 +246,6 @@ public class homeFragment extends Fragment {
                                                                                                             }
                                                                                                         });
                                                                                                         recyclerView.setAdapter(post_model_recyclerView);
-
                                                                                                     }
 
                                                                                                     @Override
